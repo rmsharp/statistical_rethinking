@@ -45,7 +45,8 @@ dependencies <- make_package_dependency_list(
 ## Remove packages that have been installed
 ## from the vector of dependencies.
 dependencies <- dependencies[!dependencies %in% 
-                               as.character(installed.packages()[, 1])]
+                               as.character(installed.packages()[ , 1])]
+
 install.packages(dependencies, type = "binary",
                  repos = "https://cran.revolutionanalytics.com",
                  lib = "/Library/Frameworks/R.framework/Resources/library/")
