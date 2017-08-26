@@ -38,7 +38,21 @@ plot(resid(m) ~ speed , data = cars)
 ```
 
 ```{r  0.5}
-install.packages(c("coda", "mvtnorm", "devtools"))
+library(rmsutilityr)
+dependencies <- make_package_dependency_list(
+  c("coda", "mvtnorm", "devtools"), path =
+    "/Library/Frameworks/R.framework/Resources/library/")
+
+## Remove packages that have been installed
+## from the vector of dependencies.
+dependencies <- dependencies[!dependencies %in% 
+                               as.character(installed.packages()[ , 1])]
+install.packages(dependencies, type = "binary",
+                 repos = "https://cran.revolutionanalytics.com",
+                 lib = "/Library/Frameworks/R.framework/Resources/library/")
+update.packages(lib.loc = "/Library/Frameworks/R.framework/Resources/library/",
+                repos = "https://cran.revolutionanalytics.com", ask = FALSE)
+
 library(devtools)
 devtools::install_github("rmcelreath/rethinking")
 
