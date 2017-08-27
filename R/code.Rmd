@@ -431,7 +431,13 @@ Unless I am missing something, the posterior probability that the panda is
 species A given only the result of the test is the probability of the test.
 That is Pr{panda is species A} = 0.8
 
+```{r practice2H4}
+P10_g_t_and_test <- 1 * 0.8
+P20_g_t_and_test <- 2 * 0.2
+P10 <- P10_g_t_and_test / (P10_g_t_and_test + P20_g_t_and_test)
+P10
 
+```
 ```{r  3.1}
 PrPV <- 0.95
 PrPM <- 0.01
@@ -457,6 +463,11 @@ samples <- sample(p_grid, prob = posterior, size = 1e4, replace = TRUE)
 
 ```{r  3.4}
 plot(samples)
+library(ggplot2)
+ggplot(data.frame(sample_number = seq_along(samples), samples = samples), 
+       aes(x = sample_number, y = samples)) +
+  geom_point(color = "blue", alpha = 1/3) + labs(x = "proportion water(p)", 
+                                                 y = "sample number")
 
 ```
 
