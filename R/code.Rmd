@@ -112,7 +112,7 @@ globe.qa <- map(
         w ~ dbinom(9, p),  # binomial likelihood
         p ~ dunif(0, 1)     # uniform prior
     ),
-    data = list(w = 6) )
+    data = list(w = 6))
 
 # display summary of quadratic approximation
 precis(globe.qa)
@@ -123,18 +123,321 @@ precis(globe.qa)
 # analytical calculation
 w <- 6
 n <- 9
-curve(dbeta(x, w+1, n-w+1), from = 0, to = 1)
+curve(dbeta(x, w + 1, n - w + 1), from = 0, to = 1)
 # quadratic approximation
 curve(dnorm(x, 0.67, 0.16), lty = 2, add = TRUE)
 
 ```
+## Practice
+### Medium
+#### 2M1. Recall the globe tossing model from the chapter. Compute and plot
+the grid approximate posterior distribution for each of the following set of
+observations. In each case, assume a uniform prior for _p_.
+
+```{r practice2M1}
+##  (1) W, W, W
+p_grid <- seq(from = 0,
+              to = 1,
+              length.out = 20)
+
+# define prior
+prior <- rep(1, 20)
+
+# compute likelihood at each value in grid
+likelihood <- dbinom(3, size = 3, prob = p_grid)
+
+# compute product of likelihood and prior
+unstd.posterior <- likelihood * prior
+
+# standardize the posterior, so it sums to 1
+posterior <- unstd.posterior / sum(unstd.posterior)
+plot(p_grid,
+     posterior,
+     type = "b",
+     xlab = "probability of water",
+     ylab = "posterior probability")
+     mtext("20 points")
+
+##     (2) W, W, W, L
+# compute likelihood at each value in grid
+likelihood <- dbinom(3, size = 4, prob = p_grid)
+
+# compute product of likelihood and prior
+unstd.posterior <- likelihood * prior
+
+# standardize the posterior, so it sums to 1
+posterior <- unstd.posterior / sum(unstd.posterior)
+plot(p_grid,
+     posterior,
+     type = "b",
+     xlab = "probability of water",
+     ylab = "posterior probability")
+     mtext("20 points")
+
+     ##     (3) L, W, W, L, W, W, W
+# compute likelihood at each value in grid
+likelihood <- dbinom(5, size = 7, prob = p_grid)
+
+# compute product of likelihood and prior
+unstd.posterior <- likelihood * prior
+
+# standardize the posterior, so it sums to 1
+posterior <- unstd.posterior / sum(unstd.posterior)
+plot(p_grid,
+     posterior,
+     type = "b",
+     xlab = "probability of water",
+     ylab = "posterior probability")
+     mtext("20 points")
+
+```
+
+#### 2M2. Now assume a prior for _p_ that is equal to zero when $p < 0.5$ and
+is a positive constant when $p \ge 0.5$. Again compute and plot the grid 
+approximate posterior distribution for each of the sets of observations in the 
+problem just above.
+
+```{r practice2M2}
+# define prior
+prior <- c(rep(0, 10), rep(1, 10))
+
+# compute likelihood at each value in grid
+likelihood <- dbinom(3, size = 3, prob = p_grid)
+
+# compute product of likelihood and prior
+unstd.posterior <- likelihood * prior
+
+# standardize the posterior, so it sums to 1
+posterior <- unstd.posterior / sum(unstd.posterior)
+plot(p_grid,
+     posterior,
+     type = "b",
+     xlab = "probability of water",
+     ylab = "posterior probability")
+     mtext("20 points")
+
+##     (2) W, W, W, L
+# compute likelihood at each value in grid
+likelihood <- dbinom(3, size = 4, prob = p_grid)
+
+# compute product of likelihood and prior
+unstd.posterior <- likelihood * prior
+
+# standardize the posterior, so it sums to 1
+posterior <- unstd.posterior / sum(unstd.posterior)
+plot(p_grid,
+     posterior,
+     type = "b",
+     xlab = "probability of water",
+     ylab = "posterior probability")
+     mtext("20 points")
+
+     ##     (3) L, W, W, L, W, W, W
+# compute likelihood at each value in grid
+likelihood <- dbinom(5, size = 7, prob = p_grid)
+
+# compute product of likelihood and prior
+unstd.posterior <- likelihood * prior
+
+# standardize the posterior, so it sums to 1
+posterior <- unstd.posterior / sum(unstd.posterior)
+plot(p_grid,
+     posterior,
+     type = "b",
+     xlab = "probability of water",
+     ylab = "posterior probability")
+     mtext("20 points")
+
+
+```
+#### 2M3. Suppose there are two globes, one for Earth and one for Mars. 
+The Earth globe is 70\% covered in water. The Mars globe is 100\% land.
+Further suppose that one of these globes --- you don't know which --- was 
+tossed in the air and produced a "land" observation. Assume that each globe 
+was equally
+likely to be tossed. Show that the posterior probability that the globe was the
+Earth, conditional on seeing "land" (Pr(Earth | land)), is 0.23.
+
+Pr(Earth | land) is symbolized with P_Earth_g_land 
+
+```{r practice2M3}
+P_Earth <- 0.5
+P_Mars <- 0.5
+P_land_g_Earth <- 0.3
+P_land_g_Mars <- 1.0
+P_land <- P_land_g_Earth * P_Earth + P_land_g_Mars * P_Mars
+P_land_a_Earth <- P_land_g_Earth * P_Earth
+P_land_a_Mars <- P_land_g_Mars * P_Mars
+P_Earth_g_land <- (P_land_g_Earth * P_Earth) / P_land
+P_Earth_g_land
+
+```
+#### 2M4. Suppose you have a dock with only three cards. 
+Each card has two sides, and each side is either black or white.
+One card has two black sides.
+The second card has one black and one white side.
+The third card has two white sides.
+Now suppose all three cards are placed in a bag and shuffled.
+Someone reaches into the bag and pulls out a card and places it flat on a table.
+A black side is shown facing up, but you don't know the color of the side 
+facing down.
+Show that the probability that the other side is also black is 2/3.
+Use the counting method (Section 2 of the chapter) to approach this problem.
+This means counting up the ways that each card could produce the observed data 
+(a black side facing up on the table).
+
+We have three cards:
+(1) B/B, (2) B/W, (3) W/W
+B/B can produce this outcome 2 ways B/B -> {[B], [B]}
+B/W can produce this outcome 1 way B/W -> {[B]}
+W/W can produce this outcome 0 ways W/W -> {NULL}
+
+Thus, W/W cannot have been selected and there are 3 paths that could have been
+selected. Two of the three come from the B/B card so the 
+Pr{[B] being on the other side of the card} is 2/3.
+
+#### 2M5. Now suppose there are four cards: B/B, B/W, W/W, and another B/B.
+Again suppose a card is drawn from the bag and a black side appears face up.
+Again calculate the probability that the other side is black.
+
+We have four cards:
+(1) B/B, (2) B/W, (3) W/W, (4) B/B
+B/B can produce this outcome 2 ways B/B -> {[B], [B]}
+B/W can produce this outcome 1 way B/W -> {[B]}
+W/W can produce this outcome 0 ways W/W -> {NULL}
+B/B can produce this outcome 2 ways B/B -> {[B], [B]}
+
+Thus, W/W cannot have been selected and there are 5 paths that could have been
+selected. Four of the five come from a B/B card so the 
+Pr{[B] being on the other side of the card} is 4/5.
+
+#### 2M6. Imagine that black ink is heavy, and so cards with black sides are heavier than cards with white sides.
+As a result, it's less likely that a card ith black sides is pulled from the 
+bag. 
+So again assume there are three cards: B/B, B/W, and W/W.
+After experimenting a number of times, your conclude that for every way to pull 
+the B/B card from the bag, there are 2 ways to pull the B/W card and 3 ways 
+to pull the W/W card.
+Again suppose that a card is pulled and a black side appears face up.
+Show that the probability the other sides is black is now 0.5.
+Use the counting method, as before.
+
+We have three cards:
+(1) B/B, (2) B/W, (3) W/W
+B/B can produce this outcome 2 ways B/B -> {[B], [B]}
+B/W can produce this outcome 1 way B/W -> {[B]}
+W/W can produce this outcome 0 ways W/W -> {NULL}
+
+However, because of the number of ways each type of card can be pulled out of 
+the bag, these numbers are multiplied by those number of ways giving:
+
+
+We have three cards:
+(1) B/B, (2) B/W, (3) W/W
+B/B can produce this outcome 2 * 1 ways B/B -> {[B], [B]}
+B/W can produce this outcome 1 * 2 ways B/W -> {[B], [B]}
+W/W can produce this outcome 0 * 3 ways W/W -> {NULL}
+
+Thus, W/W cannot have been selected and there are 4 paths that could have been
+selected. Two of the four come from a B/B card so the 
+Pr{[B] being on the other side of the card} is 2/4 or 1/2.
+
+#### 2M7. Assume again the original card problem, with a single card showing a 
+black side face up.
+Before looking at the other side, we draw another ard from the bag and lay it 
+face up on the table.
+The face that is shown on the new card is white.
+Show that the probability that the first card, the one showing a black side, 
+has black on its other side is not 0.75.
+Use the counting method, if you can.
+Hint: Treat this like the sequence of globe tosses, counting all the ways to 
+see each observation, for each possible first card.
+
+We have three cards:
+(1) B/B, (2) B/W, (3) W/W
+B/B can produce this outcome ways B/B -> {[B], [B]} + 
+                                          B/W -> {[W]} + 
+                                          W/W -> {[W], [W]}
+B/W can produce this outcome B/W -> {[B]} + W/W -> {[W], [W]}
+W/W cannot produce this outcome
+
+Thuse there are 8 ways this could happen with 6/8 = 3/4 (0.75) being with the
+B/B card being selected first, which allows the other side to be black.
+
+####2H1 Suppose there are two species of panda bear.
+Both are equally common in the wild and live in the same places. 
+They look exactly alike and eat the same food, and there is yet no genetic 
+assay capable of telling them apart.
+They differ however in their family sizes. 
+Species A gives birth to twins 10\% of the time, otherwise birthing a single 
+infant.
+Species B births twins 20\% of the time, otherwise birthing singleton infants.
+Assume thes numbers are known with certainty, from many years of field research.
+
+Now suppose you are managing a captive panda breeding program. 
+You have a new female panda of unknown species, and she has just given birth to 
+twins.
+What is the probability that her next birth will also be twins.
+
+Let the two species of pandas A and B be refered to as P10 and P20 respectively 
+based on their frequencies of twinning.
+P10_t -> 1 * 0.1 / 
+P20_t -> 2 * 0.2
+1/3 * 0.1 + 2/3 * 0.2
+Thus Pr{P? is P10} = 0.1 * 0.1 / (0.1 * 0.1 + 0.2 * 0.2)
+```{r practice2H1}
+P10_t <- 1 * 0.1 # Pr that parent in P10 is 1/2 that of it being P20
+P20_t <- 2 * 0.2
+P_t <- 1/3 * 0.1 + 2/3 * 0.2 # Probability that the next birth is twins.
+
+```
+
+####2H2. Recall all the facts from the problem above.
+Now compute the probability that the panda we have is from species A, 
+assuming we have observed only the first birth and that it was twins.
+
+See above: 1/3
+
+####2H3 Continuting on from the previous problem, suppose the same panda mother
+has a second birth and it is not twins, but a signleton infant.
+Compute the posterior probability that this panda is species A.
+
+```{r practice2H3}
+P10_s <- 1 * 0.9 # Pr that parent in P10 is 1/2 that of it being P20
+P20_s <- 2 * 0.8
+P_s <- (1/3) * 0.9 + 2/3 * 0.8 # Probability that the next birth is singleton.
+P_P10_g_s <- (1/3) * 0.9 / P_s
+P_P10_g_s
+
+```
+####2H4. A common boast of Bayesian statisticians is that Bayesian inference
+makes it easy to use all of the data, even if the data are of different types.
+
+So suppose not that a veterinarian comes along who has a new genetic test that
+she claims can identify the species of our mother panda. 
+But the test, like all tests, is imperfect.
+This is the information you have about the tests:
+
+    * The probability it correctly identifies a species A panda is 0.8.
+    * The probability it correctly identifies a species B panda is 0.65.
+    
+The vet administers the test to your panda and tells you that the test is 
+positive for species A.
+First ignore your previous information from the births and compute the posterior
+probability that your panda is species A.
+Then redo your calculation, now using the birth data as well.
+
+Unless I am missing something, the posterior probability that the panda is 
+species A given only the result of the test is the probability of the test.
+That is Pr{panda is species A} = 0.8
+
 
 ```{r  3.1}
 PrPV <- 0.95
 PrPM <- 0.01
 PrV <- 0.001
-PrP <- PrPV*PrV + PrPM*(1-PrV)
-(PrVP <- PrPV*PrV / PrP)
+PrP <- PrPV * PrV + PrPM * (1 - PrV)
+(PrVP <- PrPV * PrV / PrP)
 
 ```
 
@@ -185,7 +488,7 @@ quantile(samples, 0.8)
 ```
 
 ```{r  3.10}
-quantile(samples, c(0.1, 0.9) )
+quantile(samples, c(0.1, 0.9))
 
 ```
 
@@ -226,12 +529,12 @@ median(samples)
 ```
 
 ```{r  3.17}
-sum(posterior*abs(0.5 - p_grid) )
+sum(posterior * abs(0.5 - p_grid))
 
 ```
 
 ```{r  3.18}
-loss <- sapply(p_grid, function(d) sum(posterior*abs(d - p_grid) ) )
+loss <- sapply(p_grid, function(d) sum(posterior * abs(d - p_grid)) )
 
 ```
 
@@ -312,36 +615,36 @@ sum(birth1) + sum(birth2)
 ```
 
 ```{r  4.1}
-pos <- replicate(1000, sum(runif(16,-1, 1) ) )
+pos <- replicate(1000, sum(runif(16,-1, 1)) )
 
 ```
 
 ```{r  4.2}
-prod(1 + runif(12, 0, 0.1) )
+prod(1 + runif(12, 0, 0.1))
 
 ```
 
 ```{r  4.3}
-growth <- replicate(10000, prod(1 + runif(12, 0, 0.1) ) )
+growth <- replicate(10000, prod(1 + runif(12, 0, 0.1)) )
 dens(growth, norm.comp = TRUE)
 
 ```
 
 ```{r  4.4}
-big <- replicate(10000, prod(1 + runif(12, 0, 0.5) ) )
-small <- replicate(10000, prod(1 + runif(12, 0, 0.01) ) )
+big <- replicate(10000, prod(1 + runif(12, 0, 0.5)) )
+small <- replicate(10000, prod(1 + runif(12, 0, 0.01)) )
 
 ```
 
 ```{r  4.5}
-log.big <- replicate(10000, log(prod(1 + runif(12, 0, 0.5))) )
+log.big <- replicate(10000, log(prod(1 + runif(12, 0, 0.5))))
 
 ```
 
 ```{r  4.6}
 w <- 6; n <- 9;
 p_grid <- seq(from = 0, to = 1, length.out = 100)
-posterior <- dbinom(w, n, p_grid)*dunif(p_grid, 0, 1)
+posterior <- dbinom(w, n, p_grid) * dunif(p_grid, 0, 1)
 posterior <- posterior/sum(posterior)
 
 ```
@@ -374,7 +677,7 @@ curve(dnorm(x, 178, 20), from = 100, to = 250)
 ```
 
 ```{r  4.12}
-curve(dunif(x, 0, 50), from =-10, to = 60)
+curve(dunif(x, 0, 50), from = -10, to = 60)
 
 ```
 
@@ -394,10 +697,10 @@ post$LL <- sapply(1:nrow(post), function(i) sum(dnorm(
                 d2$height,
                 mean = post$mu[i],
                 sd = post$sigma[i],
-                log = TRUE) ) )
+                log = TRUE)) )
 post$prod <- post$LL + dnorm(post$mu, 178, 20, TRUE) +
     dunif(post$sigma, 0, 50, TRUE)
-post$prob <- exp(post$prod - max(post$prod) )
+post$prob <- exp(post$prod - max(post$prod))
 
 ```
 
@@ -420,7 +723,7 @@ sample.sigma <- post$sigma[ sample.rows ]
 ```
 
 ```{r  4.18}
-plot(sample.mu, sample.sigma, cex = 0.5, pch = 16, col = col.alpha(rangi2, 0.1) )
+plot(sample.mu, sample.sigma, cex = 0.5, pch = 16, col = col.alpha(rangi2, 0.1))
 
 ```
 
@@ -447,10 +750,10 @@ sigma.list <- seq(from = 4, to = 20, length.out = 200)
 post2 <- expand.grid(mu = mu.list, sigma = sigma.list)
 post2$LL <- sapply(1:nrow(post2), function(i)
     sum(dnorm(d3, mean = post2$mu[i], sd = post2$sigma[i],
-    log = TRUE) ) )
+    log = TRUE)) )
 post2$prod <- post2$LL + dnorm(post2$mu, 178, 20, TRUE) +
     dunif(post2$sigma, 0, 50, TRUE)
-post2$prob <- exp(post2$prod - max(post2$prod) )
+post2$prob <- exp(post2$prod - max(post2$prod))
 sample2.rows <- sample(1:nrow(post2), size = 1e4, replace = TRUE,
     prob = post2$prob)
 sample2.mu <- post2$mu[ sample2.rows ]
@@ -519,8 +822,8 @@ vcov(m4.1)
 ```
 
 ```{r  4.31}
-diag(vcov(m4.1) )
-cov2cor(vcov(m4.1) )
+diag(vcov(m4.1))
+cov2cor(vcov(m4.1))
 
 ```
 
@@ -538,14 +841,14 @@ precis(post)
 
 ```{r  4.34}
 library(MASS)
-post <- mvrnorm(n = 1e4, mu = coef(m4.1), Sigma = vcov(m4.1) )
+post <- mvrnorm(n = 1e4, mu = coef(m4.1), Sigma = vcov(m4.1))
 
 ```
 
 ```{r  4.35}
 m4.1_logsigma <- map(
         alist(
-            height ~ dnorm(mu, exp(log_sigma) ),
+            height ~ dnorm(mu, exp(log_sigma)),
             mu ~ dnorm(178, 20),
             log_sigma ~ dnorm(2, 10)
         ), data = d2)
@@ -574,7 +877,7 @@ d2 <- d[ d$age >= 18, ]
 m4.3 <- map(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + b*weight,
+        mu <- a + b * weight,
         a ~ dnorm(156, 100),
         b ~ dnorm(0, 10),
         sigma ~ dunif(0, 50)
@@ -586,7 +889,7 @@ m4.3 <- map(
 ```{r  4.39}
 m4.3 <- map(
     alist(
-        height ~ dnorm(a + b*weight, sigma),
+        height ~ dnorm(a + b * weight, sigma),
         a ~ dnorm(178, 100),
         b ~ dnorm(0, 10),
         sigma ~ dunif(0, 50)
@@ -614,7 +917,7 @@ d2$weight.c <- d2$weight - mean(d2$weight)
 m4.4 <- map(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + b*weight.c,
+        mu <- a + b * weight.c,
         a ~ dnorm(178, 100),
         b ~ dnorm(0, 10),
         sigma ~ dunif(0, 50)
@@ -650,7 +953,7 @@ dN <- d2[ 1:N, ]
 mN <- map(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + b*weight,
+        mu <- a + b * weight,
         a ~ dnorm(178, 100),
         b ~ dnorm(0, 10),
         sigma ~ dunif(0, 50)
@@ -665,12 +968,12 @@ post <- extract.samples(mN, n = 20)
 # display raw data and sample size
 plot(dN$weight, dN$height,
     xlim = range(d2$weight), ylim = range(d2$height),
-    col = rangi2, xlab ="weight", ylab ="height" )
+    col = rangi2, xlab = "weight", ylab = "height")
 mtext(concat("N = ", N))
 
 # plot the lines, with transparency
 for (i in 1:20)
-    abline(a = post$a[i], b = post$b[i], col = col.alpha("black", 0.3) )
+    abline(a = post$a[i], b = post$b[i], col = col.alpha("black", 0.3))
 
 ```
 
@@ -680,7 +983,7 @@ mu_at_50 <- post$a + post$b * 50
 ```
 
 ```{r  4.51}
-dens(mu_at_50, col = rangi2, lwd = 2, xlab ="mu|weight = 50" )
+dens(mu_at_50, col = rangi2, lwd = 2, xlab = "mu|weight = 50")
 
 ```
 
@@ -703,7 +1006,7 @@ weight.seq <- seq(from = 25, to = 70, by = 1)
 # use link to compute mu
 # for each sample from posterior
 # and for each weight in weight.seq
-mu <- link(m4.3, data = data.frame(weight = weight.seq) )
+mu <- link(m4.3, data = data.frame(weight = weight.seq))
 str(mu)
 
 ```
@@ -714,7 +1017,7 @@ plot(height ~ weight, d2, type ="n" )
 
 # loop over samples and plot each mu value
 for (i in 1:100)
-    points(weight.seq, mu[i,], pch = 16, col = col.alpha(rangi2, 0.1) )
+    points(weight.seq, mu[i,], pch = 16, col = col.alpha(rangi2, 0.1))
 
 ```
 
@@ -728,7 +1031,7 @@ mu.HPDI <- apply(mu, 2, HPDI, prob = 0.89)
 ```{r  4.57}
 # plot raw data
 # fading out points to make line and interval more visible
-plot(height ~ weight, data = d2, col = col.alpha(rangi2, 0.5) )
+plot(height ~ weight, data = d2, col = col.alpha(rangi2, 0.5))
 
 # plot the MAP line, aka the mean mu for each weight
 lines(weight.seq, mu.mean)
@@ -740,7 +1043,7 @@ shade(mu.HPDI, weight.seq)
 
 ```{r  4.58}
 post <- extract.samples(m4.3)
-mu.link <- function(weight) post$a + post$b*weight
+mu.link <- function(weight) post$a + post$b * weight
 weight.seq <- seq(from = 25, to = 70, by = 1)
 mu <- sapply(weight.seq, mu.link)
 mu.mean <- apply(mu, 2, mean)
@@ -749,7 +1052,7 @@ mu.HPDI <- apply(mu, 2, HPDI, prob = 0.89)
 ```
 
 ```{r  4.59}
-sim.height <- sim(m4.3, data = list(weight = weight.seq) )
+sim.height <- sim(m4.3, data = list(weight = weight.seq))
 str(sim.height)
 
 ```
@@ -761,7 +1064,7 @@ height.PI <- apply(sim.height, 2, PI, prob = 0.89)
 
 ```{r  4.61}
 # plot raw data
-plot(height ~ weight, d2, col = col.alpha(rangi2, 0.5) )
+plot(height ~ weight, d2, col = col.alpha(rangi2, 0.5))
 
 # draw MAP line
 lines(weight.seq, mu.mean)
@@ -786,8 +1089,8 @@ weight.seq <- 25:70
 sim.height <- sapply(weight.seq, function(weight)
     rnorm(
         n = nrow(post),
-        mean = post$a + post$b*weight,
-        sd = post$sigma) )
+        mean = post$a + post$b * weight,
+        sd = post$sigma))
 height.PI <- apply(sim.height, 2, PI, prob = 0.89)
 
 ```
@@ -801,7 +1104,7 @@ str(d)
 ```
 
 ```{r  4.65}
-d$weight.s <- (d$weight - mean(d$weight) )/sd(d$weight)
+d$weight.s <- (d$weight - mean(d$weight))/sd(d$weight)
 
 ```
 
@@ -810,7 +1113,7 @@ d$weight.s2 <- d$weight.s^2
 m4.5 <- map(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + b1*weight.s + b2*weight.s2,
+        mu <- a + b1 * weight.s + b2 * weight.s2,
         a ~ dnorm(178, 100),
         b1 ~ dnorm(0, 10),
         b2 ~ dnorm(0, 10),
@@ -826,7 +1129,7 @@ precis(m4.5)
 ```
 
 ```{r  4.68}
-weight.seq <- seq(from =-2.2, to = 2, length.out = 30)
+weight.seq <- seq(from = -2.2, to = 2, length.out = 30)
 pred_dat <- list(weight.s = weight.seq, weight.s2 = weight.seq^2)
 mu <- link(m4.5, data = pred_dat)
 mu.mean <- apply(mu, 2, mean)
@@ -837,7 +1140,7 @@ height.PI <- apply(sim.height, 2, PI, prob = 0.89)
 ```
 
 ```{r  4.69}
-plot(height ~ weight.s, d, col = col.alpha(rangi2, 0.5) )
+plot(height ~ weight.s, d, col = col.alpha(rangi2, 0.5))
 lines(weight.seq, mu.mean)
 shade(mu.PI, weight.seq)
 shade(height.PI, weight.seq)
@@ -849,7 +1152,7 @@ d$weight.s3 <- d$weight.s^3
 m4.6 <- map(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + b1*weight.s + b2*weight.s2 + b3*weight.s3,
+        mu <- a + b1 * weight.s + b2 * weight.s2 + b3 * weight.s3,
         a ~ dnorm(178, 100),
         b1 ~ dnorm(0, 10),
         b2 ~ dnorm(0, 10),
@@ -861,20 +1164,21 @@ m4.6 <- map(
 ```
 
 ```{r  4.71}
-plot(height ~ weight.s, d, col = col.alpha(rangi2, 0.5), xaxt ="n" )
+plot(height ~ weight.s, d, col = col.alpha(rangi2, 0.5), xaxt = "n")
 
 ```
 
 ```{r  4.72}
+plot(height ~ weight.s, d, col = col.alpha(rangi2, 0.5), xaxt = "n")
 at <- c(-2,-1, 0, 1, 2)
-labels <- at*sd(d$weight) + mean(d$weight)
-axis(side = 1, at = at, labels = round(labels, 1) )
+labels <- at * sd(d$weight) + mean(d$weight)
+axis(side = 1, at = at, labels = round(labels, 1))
 
 ```
 
 ```{r  4.73}
 plot(height ~ weight, data = Howell1,
-    col = col.alpha(rangi2, 0.4) )
+    col = col.alpha(rangi2, 0.4))
 
 ```
 
@@ -885,7 +1189,7 @@ data(WaffleDivorce)
 d <- WaffleDivorce
 
 # standardize predictor
-d$MedianAgeMarriage.s <- (d$MedianAgeMarriage-mean(d$MedianAgeMarriage))/
+d$MedianAgeMarriage.s <- (d$MedianAgeMarriage - mean(d$MedianAgeMarriage)) /
     sd(d$MedianAgeMarriage)
 
 # fit model
@@ -902,8 +1206,8 @@ m5.1 <- map(
 
 ```{r  5.2}
 # compute percentile interval of mean
-MAM.seq <- seq(from =-3, to = 3.5, length.out = 30)
-mu <- link(m5.1, data = data.frame(MedianAgeMarriage.s = MAM.seq) )
+MAM.seq <- seq(from = -3, to = 3.5, length.out = 30)
+mu <- link(m5.1, data = data.frame(MedianAgeMarriage.s = MAM.seq))
 mu.PI <- apply(mu, 2, PI)
 
 # plot it all
@@ -930,7 +1234,7 @@ m5.2 <- map(
 m5.3 <- map(
     alist(
         Divorce ~ dnorm(mu, sigma),
-        mu <- a + bR*Marriage.s + bA*MedianAgeMarriage.s,
+        mu <- a + bR * Marriage.s + bA * MedianAgeMarriage.s,
         a ~ dnorm(10, 10),
         bR ~ dnorm(0, 1),
         bA ~ dnorm(0, 1),
@@ -942,7 +1246,7 @@ precis(m5.3)
 ```
 
 ```{r  5.5}
-plot(precis(m5.3) )
+plot(precis(m5.3))
 
 ```
 
@@ -950,7 +1254,7 @@ plot(precis(m5.3) )
 m5.4 <- map(
     alist(
         Marriage.s ~ dnorm(mu, sigma),
-        mu <- a + b*MedianAgeMarriage.s,
+        mu <- a + b * MedianAgeMarriage.s,
         a ~ dnorm(0, 10),
         b ~ dnorm(0, 1),
         sigma ~ dunif(0, 10)
@@ -961,7 +1265,7 @@ m5.4 <- map(
 
 ```{r  5.7}
 # compute expected value at MAP, for each State
-mu <- coef(m5.4)['a'] + coef(m5.4)['b']*d$MedianAgeMarriage.s
+mu <- coef(m5.4)['a'] + coef(m5.4)['b'] * d$MedianAgeMarriage.s
 # compute residual for each State
 m.resid <- d$Marriage.s - mu
 
@@ -971,11 +1275,11 @@ m.resid <- d$Marriage.s - mu
 plot(Marriage.s ~ MedianAgeMarriage.s, d, col = rangi2)
 abline(m5.4)
 # loop over States
-for (i in 1:length(m.resid) ) {
+for (i in 1:length(m.resid)) {
     x <- d$MedianAgeMarriage.s[i] # x location of line segment
     y <- d$Marriage.s[i] # observed endpoint of line segment
     # draw the line segment
-    lines(c(x, x), c(mu[i], y), lwd = 0.5, col = col.alpha("black", 0.7) )
+    lines(c(x, x), c(mu[i], y), lwd = 0.5, col = col.alpha("black", 0.7))
 }
 
 ```
@@ -983,7 +1287,7 @@ for (i in 1:length(m.resid) ) {
 ```{r  5.9}
 # prepare new counterfactual data
 A.avg <- mean(d$MedianAgeMarriage.s)
-R.seq <- seq(from =-3, to = 3, length.out = 30)
+R.seq <- seq(from = -3, to = 3, length.out = 30)
 pred.data <- data.frame(
     Marriage.s = R.seq,
     MedianAgeMarriage.s = A.avg
@@ -999,7 +1303,7 @@ R.sim <- sim(m5.3, data = pred.data, n = 1e4)
 R.PI <- apply(R.sim, 2, PI)
 
 # display predictions, hiding raw data with type ="n"
-plot(Divorce ~ Marriage.s, data = d, type ="n" )
+plot(Divorce ~ Marriage.s, data = d, type = "n" )
 mtext( "MedianAgeMarriage.s = 0" )
 lines(R.seq, mu.mean)
 shade(mu.PI, R.seq)
@@ -1009,7 +1313,7 @@ shade(R.PI, R.seq)
 
 ```{r  5.10}
 R.avg <- mean(d$Marriage.s)
-A.seq <- seq(from =-3, to = 3.5, length.out = 30)
+A.seq <- seq(from = -3, to = 3.5, length.out = 30)
 pred.data2 <- data.frame(
     Marriage.s = R.avg,
     MedianAgeMarriage.s = A.seq
@@ -1050,13 +1354,19 @@ divorce.PI <- apply(divorce.sim, 2, PI)
 plot(mu.mean ~ d$Divorce, col = rangi2, ylim = range(mu.PI),
     xlab ="Observed divorce", ylab ="Predicted divorce" )
 abline(a = 0, b = 1, lty = 2)
-for (i in 1:nrow(d) )
+for (i in 1:nrow(d))
     lines(rep(d$Divorce[i], 2), c(mu.PI[1, i], mu.PI[2, i]),
         col = rangi2)
 
 ```
 
 ```{r  5.13}
+plot(mu.mean ~ d$Divorce, col = rangi2, ylim = range(mu.PI),
+    xlab ="Observed divorce", ylab ="Predicted divorce" )
+abline(a = 0, b = 1, lty = 2)
+for (i in 1:nrow(d))
+    lines(rep(d$Divorce[i], 2), c(mu.PI[1, i], mu.PI[2, i]),
+        col = rangi2)
 identify(x = d$Divorce, y = mu.mean, labels = d$Loc, cex = 0.8)
 
 ```
@@ -1068,11 +1378,11 @@ divorce.resid <- d$Divorce - mu.mean
 o <- order(divorce.resid)
 # make the plot
 dotchart(divorce.resid[o], labels = d$Loc[o], xlim = c(-6, 5), cex = 0.6)
-abline(v = 0, col = col.alpha("black", 0.2) )
-for (i in 1:nrow(d) ) {
+abline(v = 0, col = col.alpha("black", 0.2))
+for (i in 1:nrow(d)) {
     j <- o[i] # which State in order
-    lines(d$Divorce[j]-c(mu.PI[1, j], mu.PI[2, j]), rep(i, 2) )
-    points(d$Divorce[j]-c(divorce.PI[1, j], divorce.PI[2, j]), rep(i, 2),
+    lines(d$Divorce[j]- c(mu.PI[1, j], mu.PI[2, j]), rep(i, 2))
+    points(d$Divorce[j]- c(divorce.PI[1, j], divorce.PI[2, j]), rep(i, 2),
         pch = 3, cex = 0.6, col ="gray" )
 }
 
@@ -1096,15 +1406,23 @@ str(d)
 ```
 
 ```{r  5.17}
-m5.5 <- map(
+## Add tryCatch() so that code will run without stopping.
+tryCatch({
+  m5.5 <- map(
     alist(
-        kcal.per.g ~ dnorm(mu, sigma),
-        mu <- a + bn*neocortex.perc,
-        a ~ dnorm(0, 100),
-        bn ~ dnorm(0, 1),
-        sigma ~ dunif(0, 1)
+      kcal.per.g ~ dnorm(mu, sigma),
+      mu <- a + bn * neocortex.perc,
+      a ~ dnorm(0, 100),
+      bn ~ dnorm(0, 1),
+      sigma ~ dunif(0, 1)
     ),
     data = d)
+}, error = function(e) {
+    cat(paste0(e, "\n\n"))
+  })
+  
+  
+  
 
 ```
 
@@ -1122,7 +1440,7 @@ dcc <- d[ complete.cases(d), ]
 m5.5 <- map(
     alist(
         kcal.per.g ~ dnorm(mu, sigma),
-        mu <- a + bn*neocortex.perc,
+        mu <- a + bn * neocortex.perc,
         a ~ dnorm(0, 100),
         bn ~ dnorm(0, 1),
         sigma ~ dunif(0, 1)
@@ -1165,7 +1483,7 @@ dcc$log.mass <- log(dcc$mass)
 m5.6 <- map(
     alist(
         kcal.per.g ~ dnorm(mu, sigma),
-        mu <- a + bm*log.mass,
+        mu <- a + bm * log.mass,
         a ~ dnorm(0, 100),
         bm ~ dnorm(0, 1),
         sigma ~ dunif(0, 1)
@@ -1179,7 +1497,7 @@ precis(m5.6)
 m5.7 <- map(
     alist(
         kcal.per.g ~ dnorm(mu, sigma),
-        mu <- a + bn*neocortex.perc + bm*log.mass,
+        mu <- a + bn * neocortex.perc + bm * log.mass,
         a ~ dnorm(0, 100),
         bn ~ dnorm(0, 1),
         bm ~ dnorm(0, 1),
@@ -1191,7 +1509,7 @@ precis(m5.7)
 ```
 
 ```{r  5.27}
-mean.log.mass <- mean(log(dcc$mass) )
+mean.log.mass <- mean(log(dcc$mass))
 np.seq <- 0:100
 pred.data <- data.frame(
     neocortex.perc = np.seq,
@@ -1213,8 +1531,8 @@ lines(np.seq, mu.PI[2,], lty = 2)
 N <- 100                         # number of cases
 rho <- 0.7                       # correlation btw x_pos and x_neg
 x_pos <- rnorm(N)              # x_pos as Gaussian
-x_neg <- rnorm(N, rho*x_pos,  # x_neg correlated with x_pos
-    sqrt(1-rho^2) )
+x_neg <- rnorm(N, rho * x_pos,  # x_neg correlated with x_pos
+    sqrt(1 - rho^2))
 y <- rnorm(N, x_pos - x_neg)  # y equally associated with x_pos, x_neg
 d <- data.frame(y, x_pos, x_neg)   # bind all together in data frame
 
@@ -1224,9 +1542,9 @@ d <- data.frame(y, x_pos, x_neg)   # bind all together in data frame
 N <- 100                          # number of individuals
 height <- rnorm(N, 10, 2)           # sim total height of each
 leg_prop <- runif(N, 0.4, 0.5)      # leg as proportion of height
-leg_left <- leg_prop*height +     # sim left leg as proportion + error
+leg_left <- leg_prop * height +     # sim left leg as proportion + error
     rnorm(N, 0, 0.02)
-leg_right <- leg_prop*height +    # sim right leg as proportion + error
+leg_right <- leg_prop * height +    # sim right leg as proportion + error
     rnorm(N, 0, 0.02)
                                   # combine into data frame
 d <- data.frame(height, leg_left, leg_right)
@@ -1237,7 +1555,7 @@ d <- data.frame(height, leg_left, leg_right)
 m5.8 <- map(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + bl*leg_left + br*leg_right,
+        mu <- a + bl * leg_left + br * leg_right,
         a ~ dnorm(10, 100),
         bl ~ dnorm(2, 10),
         br ~ dnorm(2, 10),
@@ -1269,7 +1587,7 @@ dens(sum_blbr, col = rangi2, lwd = 2, xlab ="sum of bl and br" )
 m5.9 <- map(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + bl*leg_left,
+        mu <- a + bl * leg_left,
         a ~ dnorm(10, 100),
         bl ~ dnorm(2, 10),
         sigma ~ dunif(0, 10)
@@ -1291,7 +1609,7 @@ d <- milk
 m5.10 <- map(
     alist(
         kcal.per.g ~ dnorm(mu, sigma),
-        mu <- a + bf*perc.fat,
+        mu <- a + bf * perc.fat,
         a ~ dnorm(0.6, 10),
         bf ~ dnorm(0, 1),
         sigma ~ dunif(0, 10)
@@ -1302,7 +1620,7 @@ m5.10 <- map(
 m5.11 <- map(
     alist(
         kcal.per.g ~ dnorm(mu, sigma),
-        mu <- a + bl*perc.lactose,
+        mu <- a + bl * perc.lactose,
         a ~ dnorm(0.6, 10),
         bl ~ dnorm(0, 1),
         sigma ~ dunif(0, 10)
@@ -1318,7 +1636,7 @@ precis(m5.11, digits = 3)
 m5.12 <- map(
     alist(
         kcal.per.g ~ dnorm(mu, sigma),
-        mu <- a + bf*perc.fat + bl*perc.lactose,
+        mu <- a + bf * perc.fat + bl * perc.lactose,
         a ~ dnorm(0.6, 10),
         bf ~ dnorm(0, 1),
         bl ~ dnorm(0, 1),
@@ -1345,17 +1663,17 @@ library(rethinking)
 data(milk)
 d <- milk
 sim.coll <- function(r = 0.9) {
-    d$x <- rnorm(nrow(d), mean = r*d$perc.fat,
-        sd = sqrt( (1-r^2)*var(d$perc.fat) ) )
+    d$x <- rnorm(nrow(d), mean = r * d$perc.fat,
+        sd = sqrt((1 - r^2)* var(d$perc.fat)) )
     m <- lm(kcal.per.g ~ perc.fat + x, data = d)
-    sqrt(diag(vcov(m) ) )[2] # stddev of parameter
+    sqrt(diag(vcov(m)) )[2] # stddev of parameter
 }
 rep.sim.coll <- function(r = 0.9, n = 100) {
-    stddev <- replicate(n, sim.coll(r) )
+    stddev <- replicate(n, sim.coll(r))
     mean(stddev)
 }
 r.seq <- seq(from = 0, to = 0.99, by = 0.01)
-stddev <- sapply(r.seq, function(z) rep.sim.coll(r = z, n = 100) )
+stddev <- sapply(r.seq, function(z) rep.sim.coll(r = z, n = 100))
 plot(stddev ~ r.seq, type ="l", col = rangi2, lwd = 2, xlab ="correlation" )
 
 ```
@@ -1369,8 +1687,8 @@ h0 <- rnorm(N, 10, 2)
 
 # assign treatments and simulate fungus and growth
 treatment <- rep(0:1, each = N/2)
-fungus <- rbinom(N, size = 1, prob = 0.5 - treatment*0.4)
-h1 <- h0 + rnorm(N, 5 - 3*fungus)
+fungus <- rbinom(N, size = 1, prob = 0.5 - treatment * 0.4)
+h1 <- h0 + rnorm(N, 5 - 3 * fungus)
 
 # compose a clean data frame
 d <- data.frame(h0 = h0, h1 = h1, treatment = treatment, fungus = fungus)
@@ -1381,7 +1699,7 @@ d <- data.frame(h0 = h0, h1 = h1, treatment = treatment, fungus = fungus)
 m5.13 <- map(
     alist(
         h1 ~ dnorm(mu, sigma),
-        mu <- a + bh*h0 + bt*treatment + bf*fungus,
+        mu <- a + bh * h0 + bt * treatment + bf * fungus,
         a ~ dnorm(0, 100),
         c(bh, bt, bf) ~ dnorm(0, 10),
         sigma ~ dunif(0, 10)
@@ -1395,7 +1713,7 @@ precis(m5.13)
 m5.14 <- map(
     alist(
         h1 ~ dnorm(mu, sigma),
-        mu <- a + bh*h0 + bt*treatment,
+        mu <- a + bh * h0 + bt * treatment,
         a ~ dnorm(0, 100),
         c(bh, bt) ~ dnorm(0, 10),
         sigma ~ dunif(0, 10)
@@ -1416,7 +1734,7 @@ str(d)
 m5.15 <- map(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + bm*male,
+        mu <- a + bm * male,
         a ~ dnorm(178, 100),
         bm ~ dnorm(0, 10),
         sigma ~ dunif(0, 50)
@@ -1437,7 +1755,7 @@ PI(mu.male)
 m5.15b <- map(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- af*(1-male) + am*male,
+        mu <- af *(1 - male) + am * male,
         af ~ dnorm(178, 100),
         am ~ dnorm(178, 100),
         sigma ~ dunif(0, 50)
@@ -1454,7 +1772,7 @@ unique(d$clade)
 ```
 
 ```{r  5.49}
-(d$clade.NWM <- ifelse(d$clade =="New World Monkey", 1, 0) )
+(d$clade.NWM <- ifelse(d$clade =="New World Monkey", 1, 0))
 
 ```
 
@@ -1468,7 +1786,7 @@ d$clade.S <- ifelse(d$clade =="Strepsirrhine", 1, 0)
 m5.16 <- map(
     alist(
         kcal.per.g ~ dnorm(mu, sigma),
-        mu <- a + b.NWM*clade.NWM + b.OWM*clade.OWM + b.S*clade.S,
+        mu <- a + b.NWM * clade.NWM + b.OWM * clade.OWM + b.S * clade.S,
         a ~ dnorm(0.6, 10),
         b.NWM ~ dnorm(0, 1),
         b.OWM ~ dnorm(0, 1),
@@ -1491,18 +1809,18 @@ mu.OWM <- post$a + post$b.OWM
 mu.S <- post$a + post$b.S
 
 # summarize using precis
-precis(data.frame(mu.ape, mu.NWM, mu.OWM, mu.S) )
+precis(data.frame(mu.ape, mu.NWM, mu.OWM, mu.S))
 
 ```
 
 ```{r  5.53}
 diff.NWM.OWM <- mu.NWM - mu.OWM
-quantile(diff.NWM.OWM, probs = c(0.025, 0.5, 0.975) )
+quantile(diff.NWM.OWM, probs = c(0.025, 0.5, 0.975))
 
 ```
 
 ```{r  5.54}
-(d$clade_id <- coerce_index(d$clade) )
+(d$clade_id <- coerce_index(d$clade))
 
 ```
 
@@ -1520,20 +1838,36 @@ precis(m5.16_alt, depth = 2)
 ```
 
 ```{r  5.56}
-m5.17 <- lm(y ~ 1 + x, data = d)
-m5.18 <- lm(y ~ 1 + x + z + w, data = d)
+## Put a dataframe in here that will work in the following code
+d <- data.frame(x = rnorm(100), y = rnorm(100), w = rnorm(100), z = rnorm(100), 
+                season = sample(x = c("spring", "summer", "fall", "winter"), 
+                                100, replace = TRUE))
+tryCatch({m5.17 <- lm(y ~ 1 + x, data = d)}, 
+         error = function(e) {cat(paste0(e, "\n\n"))
+           })
+tryCatch({m5.18 <- lm(y ~ 1 + x + z + w, data = d)}, 
+         error = function(e) {cat(paste0(e, "\n\n"))
+           })
 
 ```
 
 ```{r  5.57}
-m5.17 <- lm(y ~ 1 + x, data = d)
-m5.19 <- lm(y ~ x, data = d)
+tryCatch({m5.17 <- lm(y ~ 1 + x, data = d)}, 
+         error = function(e) {cat(paste0(e, "\n\n"))
+           })
+tryCatch({m5.19 <- lm(y ~ x, data = d)}, 
+         error = function(e) {cat(paste0(e, "\n\n"))
+           })
 
 ```
 
 ```{r  5.58}
-m5.20 <- lm(y ~ 0 + x, data = d)
-m5.21 <- lm(y ~ x - 1, data = d)
+tryCatch({m5.20 <- lm(y ~ 0 + x, data = d)}, 
+         error = function(e) {cat(paste0(e, "\n\n"))
+           })
+tryCatch({m5.21 <- lm(y ~ x - 1, data = d)}, 
+         error = function(e) {cat(paste0(e, "\n\n"))
+           })
 
 ```
 
@@ -1607,17 +1941,17 @@ d.new <- d[ -i, ]
 
 ```{r  6.8}
 plot(brain ~ mass, d, col ="slateblue" )
-for (i in 1:nrow(d) ) {
+for (i in 1:nrow(d)) {
     d.new <- d[ -i, ]
     m0 <- lm(brain ~ mass, d.new)
-    abline(m0, col = col.alpha("black", 0.5) )
+    abline(m0, col = col.alpha("black", 0.5))
 }
 
 ```
 
 ```{r  6.9}
 p <- c(0.3, 0.7)
--sum(p*log(p) )
+-sum(p * log(p))
 
 ```
 
@@ -1632,25 +1966,25 @@ m6.1 <- lm(brain ~ mass, d)
 
 ```{r  6.11}
 # standardize the mass before fitting
-d$mass.s <- (d$mass-mean(d$mass))/sd(d$mass)
+d$mass.s <- (d$mass - mean(d$mass))/sd(d$mass)
 m6.8 <- map(
     alist(
         brain ~ dnorm(mu, sigma),
-        mu <- a + b*mass.s
+        mu <- a + b * mass.s
     ),
     data = d,
     start = list(a = mean(d$brain), b = 0, sigma = sd(d$brain)),
-    method ="Nelder-Mead" )
+    method = "Nelder-Mead")
 
 # extract MAP estimates
 theta <- coef(m6.8)
 
 # compute deviance
-dev <- (-2)*sum(dnorm(
+dev <- (-2) * sum(dnorm(
             d$brain,
-            mean = theta[1]+theta[2]*d$mass.s,
+            mean = theta[1] + theta[2] * d$mass.s,
             sd = theta[3],
-            log = TRUE) )
+            log = TRUE))
 dev
 
 ```
@@ -1660,8 +1994,8 @@ N <- 20
 kseq <- 1:5
 dev <- sapply(kseq, function(k) {
         print(k);
-        r <- replicate(1e4, sim.train.test(N = N, k = k) );
-        c(mean(r[1,]), mean(r[2,]), sd(r[1,]), sd(r[2,]) )
+        r <- replicate(1e4, sim.train.test(N = N, k = k));
+        c(mean(r[1, ]), mean(r[2, ]), sd(r[1, ]), sd(r[2, ]))
     } )
 
 ```
@@ -1672,16 +2006,16 @@ dev <- sapply(kseq, function(k) {
 ```
 
 ```{r  6.14}
-plot(1:5, dev[1,], ylim = c(min(dev[1:2,])-5, max(dev[1:2,])+10),
-    xlim = c(1, 5.1), xlab ="number of parameters", ylab ="deviance",
+plot(1:5, dev[1, ], ylim = c(min(dev[1:2,]) - 5, max(dev[1:2,]) + 10),
+    xlim = c(1, 5.1), xlab = "number of parameters", ylab = "deviance",
     pch = 16, col = rangi2)
-mtext(concat( "N = ", N) )
-points( (1:5)+0.1, dev[2,] )
+mtext(concat( "N = ", N))
+points((1:5) + 0.1, dev[2, ] )
 for (i in kseq) {
-    pts_in <- dev[1, i] + c(-1,+1)*dev[3, i]
-    pts_out <- dev[2, i] + c(-1,+1)*dev[4, i]
+    pts_in <- dev[1, i] + c(-1, +1) * dev[3, i]
+    pts_out <- dev[2, i] + c(-1, +1) * dev[4, i]
     lines(c(i, i), pts_in, col = rangi2)
-    lines(c(i, i)+0.1, pts_out)
+    lines(c(i, i) + 0.1, pts_out)
 }
 
 ```
@@ -1691,7 +2025,7 @@ data(cars)
 m <- map(
     alist(
         dist ~ dnorm(mu, sigma),
-        mu <- a + b*speed,
+        mu <- a + b * speed,
         a ~ dnorm(0, 100),
         b ~ dnorm(0, 10),
         sigma ~ dunif(0, 30)
@@ -1704,7 +2038,7 @@ post <- extract.samples(m, n = 1000)
 n_samples <- 1000
 ll <- sapply(1:n_samples,
     function(s) {
-        mu <- post$a[s] + post$b[s]*cars$speed
+        mu <- post$a[s] + post$b[s]* cars$speed
         dnorm(cars$dist, mu, post$sigma[s], log = TRUE)
     } )
 
@@ -1712,23 +2046,23 @@ ll <- sapply(1:n_samples,
 
 ```{r  6.17}
 n_cases <- nrow(cars)
-lppd <- sapply(1:n_cases, function(i) log_sum_exp(ll[i,]) - log(n_samples) )
+lppd <- sapply(1:n_cases, function(i) log_sum_exp(ll[i,]) - log(n_samples))
 
 ```
 
 ```{r  6.18}
-pWAIC <- sapply(1:n_cases, function(i) var(ll[i,]) )
+pWAIC <- sapply(1:n_cases, function(i) var(ll[i,]))
 
 ```
 
 ```{r  6.19}
--2*(sum(lppd) - sum(pWAIC) )
+-2 *(sum(lppd) - sum(pWAIC))
 
 ```
 
 ```{r  6.20}
-waic_vec <- -2*(lppd - pWAIC)
-sqrt(n_cases*var(waic_vec) )
+waic_vec <- -2 *(lppd - pWAIC)
+sqrt(n_cases * var(waic_vec))
 
 ```
 
@@ -1745,27 +2079,27 @@ a.start <- mean(d$kcal.per.g)
 sigma.start <- log(sd(d$kcal.per.g))
 m6.11 <- map(
     alist(
-        kcal.per.g ~ dnorm(a, exp(log.sigma) )
+        kcal.per.g ~ dnorm(a, exp(log.sigma))
     ),
-    data = d, start = list(a = a.start, log.sigma = sigma.start) )
+    data = d, start = list(a = a.start, log.sigma = sigma.start))
 m6.12 <- map(
     alist(
-        kcal.per.g ~ dnorm(mu, exp(log.sigma) ),
-        mu <- a + bn*neocortex
+        kcal.per.g ~ dnorm(mu, exp(log.sigma)),
+        mu <- a + bn * neocortex
     ),
-    data = d, start = list(a = a.start, bn = 0, log.sigma = sigma.start) )
+    data = d, start = list(a = a.start, bn = 0, log.sigma = sigma.start))
 m6.13 <- map(
     alist(
-        kcal.per.g ~ dnorm(mu, exp(log.sigma) ),
-        mu <- a + bm*log(mass)
+        kcal.per.g ~ dnorm(mu, exp(log.sigma)),
+        mu <- a + bm * log(mass)
     ),
-    data = d, start = list(a = a.start, bm = 0, log.sigma = sigma.start) )
+    data = d, start = list(a = a.start, bm = 0, log.sigma = sigma.start))
 m6.14 <- map(
     alist(
-        kcal.per.g ~ dnorm(mu, exp(log.sigma) ),
-        mu <- a + bn*neocortex + bm*log(mass)
+        kcal.per.g ~ dnorm(mu, exp(log.sigma)),
+        mu <- a + bn * neocortex + bm * log(mass)
     ),
-    data = d, start = list(a = a.start, bn = 0, bm = 0, log.sigma = sigma.start) )
+    data = d, start = list(a = a.start, bn = 0, bm = 0, log.sigma = sigma.start))
 
 ```
 
@@ -1775,7 +2109,7 @@ WAIC(m6.14)
 ```
 
 ```{r  6.24}
-(milk.models <- compare(m6.11, m6.12, m6.13, m6.14) )
+(milk.models <- compare(m6.11, m6.12, m6.13, m6.14))
 
 ```
 
@@ -1796,7 +2130,7 @@ coeftab(m6.11, m6.12, m6.13, m6.14)
 ```
 
 ```{r  6.28}
-plot(coeftab(m6.11, m6.12, m6.13, m6.14) )
+plot(coeftab(m6.11, m6.12, m6.13, m6.14))
 
 ```
 
@@ -1843,7 +2177,7 @@ d2 <- d[ -i, ]
 ```
 
 ```{r  6.32}
-sum(dnorm(d2$height, mu, sigma, log = TRUE) )
+sum(dnorm(d2$height, mu, sigma, log = TRUE))
 
 ```
 
@@ -1858,7 +2192,7 @@ d$log_gdp <- log(d$rgdppc_2000)
 # extract countries with GDP data
 dd <- d[ complete.cases(d$rgdppc_2000), ]
 
-# split countries into Africa and not-Africa
+# split countries into Africa and not -Africa
 d.A1 <- dd[ dd$cont_africa == 1, ] # Africa
 d.A0 <- dd[ dd$cont_africa == 0, ] # not Africa
 
@@ -1869,18 +2203,18 @@ d.A0 <- dd[ dd$cont_africa == 0, ] # not Africa
 m7.1 <- map(
     alist(
         log_gdp ~ dnorm(mu, sigma),
-        mu <- a + bR*rugged,
+        mu <- a + bR * rugged,
         a ~ dnorm(8, 100),
         bR ~ dnorm(0, 1),
         sigma ~ dunif(0, 10)
     ),
     data = d.A1)
 
-# non-African nations
+# non -African nations
 m7.2 <- map(
     alist(
         log_gdp ~ dnorm(mu, sigma),
-        mu <- a + bR*rugged,
+        mu <- a + bR * rugged,
         a ~ dnorm(8, 100),
         bR ~ dnorm(0, 1),
         sigma ~ dunif(0, 10)
@@ -1893,7 +2227,7 @@ m7.2 <- map(
 m7.3 <- map(
     alist(
         log_gdp ~ dnorm(mu, sigma),
-        mu <- a + bR*rugged,
+        mu <- a + bR * rugged,
         a ~ dnorm(8, 100),
         bR ~ dnorm(0, 1),
         sigma ~ dunif(0, 10)
@@ -1906,7 +2240,7 @@ m7.3 <- map(
 m7.4 <- map(
     alist(
         log_gdp ~ dnorm(mu, sigma),
-        mu <- a + bR*rugged + bA*cont_africa,
+        mu <- a + bR * rugged + bA * cont_africa,
         a ~ dnorm(8, 100),
         bR ~ dnorm(0, 1),
         bA ~ dnorm(0, 1),
@@ -1925,10 +2259,10 @@ compare(m7.3, m7.4)
 rugged.seq <- seq(from =-1, to = 8, by = 0.25)
 
 # compute mu over samples, fixing cont_africa = 0
-mu.NotAfrica <- link(m7.4, data = data.frame(cont_africa = 0, rugged = rugged.seq) )
+mu.NotAfrica <- link(m7.4, data = data.frame(cont_africa = 0, rugged = rugged.seq))
 
 # compute mu over samples, fixing cont_africa = 1
-mu.Africa <- link(m7.4, data = data.frame(cont_africa = 1, rugged = rugged.seq) )
+mu.Africa <- link(m7.4, data = data.frame(cont_africa = 1, rugged = rugged.seq))
 
 # summarize to means and intervals
 mu.NotAfrica.mean <- apply(mu.NotAfrica, 2, mean)
@@ -1942,8 +2276,8 @@ mu.Africa.PI <- apply(mu.Africa, 2, PI, prob = 0.97)
 m7.5 <- map(
     alist(
         log_gdp ~ dnorm(mu, sigma),
-        mu <- a + gamma*rugged + bA*cont_africa,
-        gamma <- bR + bAR*cont_africa,
+        mu <- a + gamma * rugged + bA * cont_africa,
+        gamma <- bR + bAR * cont_africa,
         a ~ dnorm(8, 100),
         bA ~ dnorm(0, 1),
         bR ~ dnorm(0, 1),
@@ -1963,7 +2297,7 @@ compare(m7.3, m7.4, m7.5)
 m7.5b <- map(
     alist(
         log_gdp ~ dnorm(mu, sigma),
-        mu <- a + bR*rugged + bAR*rugged*cont_africa + bA*cont_africa,
+        mu <- a + bR * rugged + bAR * rugged * cont_africa + bA * cont_africa,
         a ~ dnorm(8, 100),
         bA ~ dnorm(0, 1),
         bR ~ dnorm(0, 1),
@@ -1977,11 +2311,11 @@ m7.5b <- map(
 ```{r  7.10}
 rugged.seq <- seq(from =-1, to = 8, by = 0.25)
 
-mu.Africa <- link(m7.5, data = data.frame(cont_africa = 1, rugged = rugged.seq) )
+mu.Africa <- link(m7.5, data = data.frame(cont_africa = 1, rugged = rugged.seq))
 mu.Africa.mean <- apply(mu.Africa, 2, mean)
 mu.Africa.PI <- apply(mu.Africa, 2, PI, prob = 0.97)
 
-mu.NotAfrica <- link(m7.5, data = data.frame(cont_africa = 0, rugged = rugged.seq) )
+mu.NotAfrica <- link(m7.5, data = data.frame(cont_africa = 0, rugged = rugged.seq))
 mu.NotAfrica.mean <- apply(mu.NotAfrica, 2, mean)
 mu.NotAfrica.PI <- apply(mu.NotAfrica, 2, PI, prob = 0.97)
 
@@ -1995,14 +2329,14 @@ plot(log(rgdppc_2000) ~ rugged, data = d.A1,
     xlab ="Terrain Ruggedness Index" )
 mtext( "African nations", 3)
 lines(rugged.seq, mu.Africa.mean, col = rangi2)
-shade(mu.Africa.PI, rugged.seq, col = col.alpha(rangi2, 0.3) )
+shade(mu.Africa.PI, rugged.seq, col = col.alpha(rangi2, 0.3))
 
-# plot non-African nations with regression
+# plot non -African nations with regression
 d.A0 <- dd[dd$cont_africa == 0,]
 plot(log(rgdppc_2000) ~ rugged, data = d.A0,
     col ="black", ylab ="log GDP year 2000",
     xlab ="Terrain Ruggedness Index" )
-mtext( "Non-African nations", 3)
+mtext( "Non -African nations", 3)
 lines(rugged.seq, mu.NotAfrica.mean)
 shade(mu.NotAfrica.PI, rugged.seq)
 
@@ -2015,8 +2349,8 @@ precis(m7.5)
 
 ```{r  7.13}
 post <- extract.samples(m7.5)
-gamma.Africa <- post$bR + post$bAR*1
-gamma.notAfrica <- post$bR + post$bAR*0
+gamma.Africa <- post$bR + post$bAR * 1
+gamma.notAfrica <- post$bR + post$bAR * 0
 
 ```
 
@@ -2045,12 +2379,12 @@ q.rugged <- range(dd$rugged)
 
 # compute lines and confidence intervals
 mu.ruggedlo <- link(m7.5,
-    data = data.frame(rugged = q.rugged[1], cont_africa = 0:1) )
+    data = data.frame(rugged = q.rugged[1], cont_africa = 0:1))
 mu.ruggedlo.mean <- apply(mu.ruggedlo, 2, mean)
 mu.ruggedlo.PI <- apply(mu.ruggedlo, 2, PI)
 
 mu.ruggedhi <- link(m7.5,
-    data = data.frame(rugged = q.rugged[2], cont_africa = 0:1) )
+    data = data.frame(rugged = q.rugged[2], cont_africa = 0:1))
 mu.ruggedhi.mean <- apply(mu.ruggedhi, 2, mean)
 mu.ruggedhi.PI <- apply(mu.ruggedhi, 2, PI)
 
@@ -2061,11 +2395,11 @@ plot(dd$cont_africa + ox, log(dd$rgdppc_2000),
     col = ifelse(dd$rugged>med.r, rangi2,"black"),
     xlim = c(-0.25, 1.25), xaxt ="n", ylab ="log GDP year 2000",
     xlab ="Continent" )
-axis(1, at = c(0, 1), labels = c("other","Africa") )
+axis(1, at = c(0, 1), labels = c("other","Africa"))
 lines(0:1, mu.ruggedlo.mean, lty = 2)
 shade(mu.ruggedlo.PI, 0:1)
 lines(0:1, mu.ruggedhi.mean, col = rangi2)
-shade(mu.ruggedhi.PI, 0:1, col = col.alpha(rangi2, 0.25) )
+shade(mu.ruggedhi.PI, 0:1, col = col.alpha(rangi2, 0.25))
 
 ```
 
@@ -2081,7 +2415,7 @@ str(d)
 m7.6 <- map(
     alist(
         blooms ~ dnorm(mu, sigma),
-        mu <- a + bW*water + bS*shade,
+        mu <- a + bW * water + bS * shade,
         a ~ dnorm(0, 100),
         bW ~ dnorm(0, 100),
         bS ~ dnorm(0, 100),
@@ -2091,7 +2425,7 @@ m7.6 <- map(
 m7.7 <- map(
     alist(
         blooms ~ dnorm(mu, sigma),
-        mu <- a + bW*water + bS*shade + bWS*water*shade,
+        mu <- a + bW * water + bS * shade + bWS * water * shade,
         a ~ dnorm(0, 100),
         bW ~ dnorm(0, 100),
         bS ~ dnorm(0, 100),
@@ -2106,19 +2440,19 @@ m7.7 <- map(
 m7.6 <- map(
     alist(
         blooms ~ dnorm(mu, sigma),
-        mu <- a + bW*water + bS*shade,
+        mu <- a + bW * water + bS * shade,
         a ~ dnorm(0, 100),
         bW ~ dnorm(0, 100),
         bS ~ dnorm(0, 100),
         sigma ~ dunif(0, 100)
     ),
     data = d,
-    method ="Nelder-Mead",
-    control = list(maxit = 1e4) )
+    method ="Nelder -Mead",
+    control = list(maxit = 1e4))
 m7.7 <- map(
     alist(
         blooms ~ dnorm(mu, sigma),
-        mu <- a + bW*water + bS*shade + bWS*water*shade,
+        mu <- a + bW * water + bS * shade + bWS * water * shade,
         a ~ dnorm(0, 100),
         bW ~ dnorm(0, 100),
         bS ~ dnorm(0, 100),
@@ -2126,8 +2460,8 @@ m7.7 <- map(
         sigma ~ dunif(0, 100)
     ),
     data = d,
-    method ="Nelder-Mead",
-    control = list(maxit = 1e4) )
+    method ="Nelder -Mead",
+    control = list(maxit = 1e4))
 
 ```
 
@@ -2151,18 +2485,18 @@ d$water.c <- d$water - mean(d$water)
 m7.8 <- map(
     alist(
         blooms ~ dnorm(mu, sigma),
-        mu <- a + bW*water.c + bS*shade.c,
+        mu <- a + bW * water.c + bS * shade.c,
         a ~ dnorm(130, 100),
         bW ~ dnorm(0, 100),
         bS ~ dnorm(0, 100),
         sigma ~ dunif(0, 100)
     ),
     data = d,
-    start = list(a = mean(d$blooms), bW = 0, bS = 0, sigma = sd(d$blooms)) )
+    start = list(a = mean(d$blooms), bW = 0, bS = 0, sigma = sd(d$blooms)))
 m7.9 <- map(
     alist(
         blooms ~ dnorm(mu, sigma),
-        mu <- a + bW*water.c + bS*shade.c + bWS*water.c*shade.c,
+        mu <- a + bW * water.c + bS * shade.c + bWS * water.c * shade.c,
         a ~ dnorm(130, 100),
         bW ~ dnorm(0, 100),
         bS ~ dnorm(0, 100),
@@ -2170,20 +2504,20 @@ m7.9 <- map(
         sigma ~ dunif(0, 100)
     ),
     data = d,
-    start = list(a = mean(d$blooms), bW = 0, bS = 0, bWS = 0, sigma = sd(d$blooms)) )
+    start = list(a = mean(d$blooms), bW = 0, bS = 0, bWS = 0, sigma = sd(d$blooms)))
 coeftab(m7.8, m7.9)
 
 ```
 
 ```{r  7.25}
 k <- coef(m7.7)
-k[1] + k[2]*2 + k[3]*2 + k[4]*2*2
+k[1] + k[2]* 2 + k[3]* 2 + k[4]* 2 * 2
 
 ```
 
 ```{r  7.26}
 k <- coef(m7.9)
-k[1] + k[2]*0 + k[3]*0 + k[4]*0*0
+k[1] + k[2]* 0 + k[3]* 0 + k[4]* 0 * 0
 
 ```
 
@@ -2203,7 +2537,7 @@ for (w in -1:1) {
     plot(blooms ~ shade.c, data = dt, col = rangi2,
         main = paste("water.c =", w), xaxp = c(-1, 1, 2), ylim = c(0, 362),
         xlab ="shade (centered)" )
-    mu <- link(m7.9, data = data.frame(water.c = w, shade.c = shade.seq) )
+    mu <- link(m7.9, data = data.frame(water.c = w, shade.c = shade.seq))
     mu.mean <- apply(mu, 2, mean)
     mu.PI <- apply(mu, 2, PI, prob = 0.97)
     lines(shade.seq, mu.mean)
@@ -2214,28 +2548,28 @@ for (w in -1:1) {
 ```
 
 ```{r  7.29}
-m7.x <- lm(y ~ x + z + x*z, data = d)
+m7.x <- lm(y ~ x + z + x * z, data = d)
 
 ```
 
 ```{r  7.30}
-m7.x <- lm(y ~ x*z, data = d)
+m7.x <- lm(y ~ x * z, data = d)
 
 ```
 
 ```{r  7.31}
-m7.x <- lm(y ~ x + x*z - z, data = d)
+m7.x <- lm(y ~ x + x * z - z, data = d)
 
 ```
 
 ```{r  7.32}
-m7.x <- lm(y ~ x*z*w, data = d)
+m7.x <- lm(y ~ x * z * w, data = d)
 
 ```
 
 ```{r  7.33}
 x <- z <- w <- 1
-colnames(model.matrix(~x*z*w) )
+colnames(model.matrix(~x * z * w))
 
 ```
 
@@ -2278,7 +2612,7 @@ dd <- d[ complete.cases(d$rgdppc_2000), ]
 m8.1 <- map(
     alist(
         log_gdp ~ dnorm(mu, sigma),
-        mu <- a + bR*rugged + bA*cont_africa + bAR*rugged*cont_africa,
+        mu <- a + bR * rugged + bA * cont_africa + bAR * rugged * cont_africa,
         a ~ dnorm(0, 100),
         bR ~ dnorm(0, 10),
         bA ~ dnorm(0, 10),
@@ -2300,7 +2634,7 @@ str(dd.trim)
 m8.1stan <- map2stan(
     alist(
         log_gdp ~ dnorm(mu, sigma),
-        mu <- a + bR*rugged + bA*cont_africa + bAR*rugged*cont_africa,
+        mu <- a + bR * rugged + bA * cont_africa + bAR * rugged * cont_africa,
         a ~ dnorm(0, 100),
         bR ~ dnorm(0, 10),
         bA ~ dnorm(0, 10),
@@ -2435,9 +2769,9 @@ mp <- map2stan(
 N <- 100                          # number of individuals
 height <- rnorm(N, 10, 2)           # sim total height of each
 leg_prop <- runif(N, 0.4, 0.5)      # leg as proportion of height
-leg_left <- leg_prop*height +     # sim left leg as proportion + error
+leg_left <- leg_prop * height +     # sim left leg as proportion + error
     rnorm(N, 0, 0.02)
-leg_right <- leg_prop*height +    # sim right leg as proportion + error
+leg_right <- leg_prop * height +    # sim right leg as proportion + error
     rnorm(N, 0, 0.02)
                                   # combine into data frame
 d <- data.frame(height, leg_left, leg_right)
@@ -2448,14 +2782,14 @@ d <- data.frame(height, leg_left, leg_right)
 m5.8s <- map2stan(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + bl*leg_left + br*leg_right,
+        mu <- a + bl * leg_left + br * leg_right,
         a ~ dnorm(10, 100),
         bl ~ dnorm(2, 10),
         br ~ dnorm(2, 10),
         sigma ~ dcauchy(0, 1)
     ),
     data = d, chains = 4,
-    start = list(a = 10, bl = 0, br = 0, sigma = 1) )
+    start = list(a = 10, bl = 0, br = 0, sigma = 1))
 
 ```
 
@@ -2463,14 +2797,14 @@ m5.8s <- map2stan(
 m5.8s2 <- map2stan(
     alist(
         height ~ dnorm(mu, sigma),
-        mu <- a + bl*leg_left + br*leg_right,
+        mu <- a + bl * leg_left + br * leg_right,
         a ~ dnorm(10, 100),
         bl ~ dnorm(2, 10),
         br ~ dnorm(2, 10) & T[0,],
         sigma ~ dcauchy(0, 1)
     ),
     data = d, chains = 4,
-    start = list(a = 10, bl = 0, br = 0, sigma = 1) )
+    start = list(a = 10, bl = 0, br = 0, sigma = 1))
 
 ```
 
@@ -2490,7 +2824,7 @@ p_norm <- lapply(p, function(q) q/sum(q))
 ```
 
 ```{r  9.3}
-(H <- sapply(p_norm, function(q) -sum(ifelse(q == 0, 0, q*log(q))) ) )
+(H <- sapply(p_norm, function(q) -sum(ifelse(q == 0, 0, q * log(q)))) )
 
 ```
 
@@ -2509,40 +2843,40 @@ p[[3]] <- c(1/6, 2/6, 2/6, 1/6)
 p[[4]] <- c(1/8, 4/8, 2/8, 1/8)
 
 # compute expected value of each
-sapply(p, function(p) sum(p*c(0, 1, 1, 2)) )
+sapply(p, function(p) sum(p * c(0, 1, 1, 2)))
 
 ```
 
 ```{r  9.6}
 # compute entropy of each distribution
-sapply(p, function(p) -sum(p*log(p) ) )
+sapply(p, function(p) -sum(p * log(p)) )
 
 ```
 
 ```{r  9.7}
 p <- 0.7
-(A <- c( (1-p)^2, p*(1-p), (1-p)*p, p^2) )
+(A <- c((1 -p)^2, p *(1 -p), (1 -p)* p, p^2))
 
 ```
 
 ```{r  9.8}
--sum(A*log(A) )
+-sum(A * log(A))
 
 ```
 
 ```{r  9.9}
 sim.p <- function(G = 1.4) {
     x123 <- runif(3)
-    x4 <- ( (G)*sum(x123)-x123[2]-x123[3] )/(2-G)
-    z <- sum(c(x123, x4) )
+    x4 <- ((G)* sum(x123)-x123[2]-x123[3] )/(2 -G)
+    z <- sum(c(x123, x4))
     p <- c(x123, x4)/z
-    list(H =-sum(p*log(p) ), p = p)
+    list(H =-sum(p * log(p)), p = p)
 }
 
 ```
 
 ```{r  9.10}
-H <- replicate(1e5, sim.p(1.4) )
+H <- replicate(1e5, sim.p(1.4))
 dens(as.numeric(H[1,]), adj = 0.1)
 
 ```
@@ -2583,7 +2917,7 @@ precis(m10.1)
 ```
 
 ```{r  10.3}
-logistic(c(0.18, 0.46) )
+logistic(c(0.18, 0.46))
 
 ```
 
@@ -2591,7 +2925,7 @@ logistic(c(0.18, 0.46) )
 m10.2 <- map(
     alist(
         pulled_left ~ dbinom(1, p),
-        logit(p) <- a + bp*prosoc_left,
+        logit(p) <- a + bp * prosoc_left,
         a ~ dnorm(0, 10),
         bp ~ dnorm(0, 10)
     ),
@@ -2599,7 +2933,7 @@ m10.2 <- map(
 m10.3 <- map(
     alist(
         pulled_left ~ dbinom(1, p),
-        logit(p) <- a + (bp + bpC*condition)*prosoc_left,
+        logit(p) <- a + (bp + bpC * condition)* prosoc_left,
         a ~ dnorm(0, 10),
         bp ~ dnorm(0, 10),
         bpC ~ dnorm(0, 10)
@@ -2653,8 +2987,8 @@ pred.p.PI <- apply(chimp.ensemble$link, 2, PI)
 # empty plot frame with good axes
 plot(0, 0, type ="n", xlab ="prosoc_left/condition",
     ylab ="proportion pulled left", ylim = c(0, 1), xaxt ="n",
-    xlim = c(1, 4) )
-axis(1, at = 1:4, labels = c("0/0","1/0","0/1","1/1") )
+    xlim = c(1, 4))
+axis(1, at = 1:4, labels = c("0/0","1/0","0/1","1/1"))
 
 # plot raw data, one trend for each of 7 individual chimpanzees
 # will use by() here; see Overthinking box for explanation
@@ -2674,7 +3008,7 @@ shade(pred.p.PI, 1:4)
 d2 <- d
 d2$recipient <- NULL
 
-# re-use map fit to get the formula
+# re -use map fit to get the formula
 m10.3stan <- map2stan(m10.3, data = d2, iter = 1e4, warmup = 1000)
 precis(m10.3stan)
 
@@ -2689,7 +3023,7 @@ pairs(m10.3stan)
 m10.4 <- map2stan(
     alist(
         pulled_left ~ dbinom(1, p),
-        logit(p) <- a[actor] + (bp + bpC*condition)*prosoc_left,
+        logit(p) <- a[actor] + (bp + bpC * condition)* prosoc_left,
         a[actor] ~ dnorm(0, 10),
         bp ~ dnorm(0, 10),
         bpC ~ dnorm(0, 10)
@@ -2733,9 +3067,9 @@ pred.p.PI <- apply(link.m10.4, 2, PI)
 
 plot(0, 0, type ="n", xlab ="prosoc_left/condition",
     ylab ="proportion pulled left", ylim = c(0, 1), xaxt ="n",
-    xlim = c(1, 4), yaxp = c(0, 1, 2) )
-axis(1, at = 1:4, labels = c("0/0","1/0","0/1","1/1") )
-mtext(paste( "actor", chimp) )
+    xlim = c(1, 4), yaxp = c(0, 1, 2))
+axis(1, at = 1:4, labels = c("0/0","1/0","0/1","1/1"))
+mtext(paste( "actor", chimp))
 
 p <- by(d$pulled_left,
     list(d$prosoc_left, d$condition, d$actor), mean)
@@ -2759,7 +3093,7 @@ d.aggregated <- aggregate(d$pulled_left,
 m10.5 <- map(
     alist(
         x ~ dbinom(18, p),
-        logit(p) <- a + (bp + bpC*condition)*prosoc_left,
+        logit(p) <- a + (bp + bpC * condition)* prosoc_left,
         a ~ dnorm(0, 10),
         bp ~ dnorm(0, 10),
         bpC ~ dnorm(0, 10)
@@ -2780,7 +3114,7 @@ d$male <- ifelse(d$applicant.gender =="male", 1, 0)
 m10.6 <- map(
     alist(
          admit ~ dbinom(applications, p),
-         logit(p) <- a + bm*male,
+         logit(p) <- a + bm * male,
          a ~ dnorm(0, 10),
          bm ~ dnorm(0, 10)
     ),
@@ -2810,7 +3144,7 @@ post <- extract.samples(m10.6)
 p.admit.male <- logistic(post$a + post$bm)
 p.admit.female <- logistic(post$a)
 diff.admit <- p.admit.male - p.admit.female
-quantile(diff.admit, c(0.025, 0.5, 0.975) )
+quantile(diff.admit, c(0.025, 0.5, 0.975))
 
 ```
 
@@ -2818,11 +3152,11 @@ quantile(diff.admit, c(0.025, 0.5, 0.975) )
 postcheck(m10.6, n = 1e4)
 # draw lines connecting points from same dept
 for (i in 1:6) {
-    x <- 1 + 2*(i-1)
+    x <- 1 + 2 *(i -1)
     y1 <- d$admit[x]/d$applications[x]
-    y2 <- d$admit[x+1]/d$applications[x+1]
-    lines(c(x, x+1), c(y1, y2), col = rangi2, lwd = 2)
-    text(x+0.5, (y1+y2)/2 + 0.05, d$dept[x], cex = 0.8, col = rangi2)
+    y2 <- d$admit[x + 1]/d$applications[x + 1]
+    lines(c(x, x + 1), c(y1, y2), col = rangi2, lwd = 2)
+    text(x + 0.5, (y1 + y2)/2 + 0.05, d$dept[x], cex = 0.8, col = rangi2)
 }
 
 ```
@@ -2843,7 +3177,7 @@ m10.8 <- map(
 m10.9 <- map(
     alist(
         admit ~ dbinom(applications, p),
-        logit(p) <- a[dept_id] + bm*male,
+        logit(p) <- a[dept_id] + bm * male,
         a[dept_id] ~ dnorm(0, 10),
         bm ~ dnorm(0, 10)
     ), data = d)
@@ -2891,8 +3225,8 @@ glimmer(pulled_left ~ prosoc_left * condition - condition,
 
 ```{r  10.35}
 # outcome and predictor almost perfectly associated
-y <- c(rep(0, 10), rep(1, 10) )
-x <- c(rep(-1, 9), rep(1, 11) )
+y <- c(rep(0, 10), rep(1, 10))
+x <- c(rep(-1, 9), rep(1, 11))
 # fit binomial GLM
 m.bad <- glm(y ~ x, data = list(y = y, x = x), family = binomial)
 precis(m.bad)
@@ -2903,9 +3237,9 @@ precis(m.bad)
 m.good <- map(
     alist(
         y ~ dbinom(1, p),
-        logit(p) <- a + b*x,
+        logit(p) <- a + b * x,
         c(a, b) ~ dnorm(0, 10)
-    ), data = list(y = y, x = x) )
+    ), data = list(y = y, x = x))
 precis(m.good)
 
 ```
@@ -2918,7 +3252,7 @@ pairs(m.good.stan)
 
 ```{r  10.38}
 y <- rbinom(1e5, 1000, 1/1000)
-c(mean(y), var(y) )
+c(mean(y), var(y))
 
 ```
 
@@ -2940,8 +3274,8 @@ d$contact_high <- ifelse(d$contact =="high", 1, 0)
 m10.10 <- map(
     alist(
         total_tools ~ dpois(lambda),
-        log(lambda) <- a + bp*log_pop +
-            bc*contact_high + bpc*contact_high*log_pop,
+        log(lambda) <- a + bp * log_pop +
+            bc * contact_high + bpc * contact_high * log_pop,
         a ~ dnorm(0, 100),
         c(bp, bc, bpc) ~ dnorm(0, 1)
     ),
@@ -2957,8 +3291,8 @@ plot(precis(m10.10))
 
 ```{r  10.43}
 post <- extract.samples(m10.10)
-lambda_high <- exp(post$a + post$bc + (post$bp + post$bpc)*8)
-lambda_low <- exp(post$a + post$bp*8)
+lambda_high <- exp(post$a + post$bc + (post$bp + post$bpc)* 8)
+lambda_low <- exp(post$a + post$bp * 8)
 
 ```
 
@@ -2973,7 +3307,7 @@ sum(diff > 0)/length(diff)
 m10.11 <- map(
     alist(
         total_tools ~ dpois(lambda),
-        log(lambda) <- a + bp*log_pop + bc*contact_high,
+        log(lambda) <- a + bp * log_pop + bc * contact_high,
         a ~ dnorm(0, 100),
         c(bp, bc) ~ dnorm(0, 1)
     ), data = d)
@@ -2985,16 +3319,16 @@ m10.11 <- map(
 m10.12 <- map(
     alist(
         total_tools ~ dpois(lambda),
-        log(lambda) <- a + bp*log_pop,
+        log(lambda) <- a + bp * log_pop,
         a ~ dnorm(0, 100),
         bp ~ dnorm(0, 1)
     ), data = d)
 
-# no log-population
+# no log -population
 m10.13 <- map(
     alist(
         total_tools ~ dpois(lambda),
-        log(lambda) <- a + bc*contact_high,
+        log(lambda) <- a + bc * contact_high,
         a ~ dnorm(0, 100),
         bc ~ dnorm(0, 1)
     ), data = d)
@@ -3013,7 +3347,7 @@ m10.14 <- map(
 # compare all using WAIC
 # adding n = 1e4 for more stable WAIC estimates
 # will also plot the comparison
-(islands.compare <- compare(m10.10, m10.11, m10.12, m10.13, m10.14, n = 1e4) )
+(islands.compare <- compare(m10.10, m10.11, m10.12, m10.13, m10.14, n = 1e4))
 plot(islands.compare)
 
 ```
@@ -3023,9 +3357,9 @@ plot(islands.compare)
 # point character (pch) indicates contact rate
 pch <- ifelse(d$contact_high == 1, 16, 1)
 plot(d$log_pop, d$total_tools, col = rangi2, pch = pch,
-    xlab ="log-population", ylab ="total tools" )
+    xlab ="log -population", ylab ="total tools" )
 
-# sequence of log-population sizes to compute over
+# sequence of log -population sizes to compute over
 log_pop.seq <- seq(from = 6, to = 13, length.out = 30)
 
 # compute trend for high contact islands
@@ -3039,7 +3373,7 @@ lambda.PI <- apply(lambda.pred.h$link, 2, PI)
 
 # plot predicted trend for high contact islands
 lines(log_pop.seq, lambda.med, col = rangi2)
-shade(lambda.PI, log_pop.seq, col = col.alpha(rangi2, 0.2) )
+shade(lambda.PI, log_pop.seq, col = col.alpha(rangi2, 0.2))
 
 # compute trend for low contact islands
 d.pred <- data.frame(
@@ -3052,7 +3386,7 @@ lambda.PI <- apply(lambda.pred.l$link, 2, PI)
 
 # plot again
 lines(log_pop.seq, lambda.med, lty = 2)
-shade(lambda.PI, log_pop.seq, col = col.alpha("black", 0.1) )
+shade(lambda.PI, log_pop.seq, col = col.alpha("black", 0.1))
 
 ```
 
@@ -3066,12 +3400,12 @@ precis(m10.10stan)
 # construct centered predictor
 d$log_pop_c <- d$log_pop - mean(d$log_pop)
 
-# re-estimate
+# re -estimate
 m10.10stan.c <- map2stan(
     alist(
         total_tools ~ dpois(lambda),
-        log(lambda) <- a + bp*log_pop_c + bc*contact_high +
-            bcp*log_pop_c*contact_high,
+        log(lambda) <- a + bp * log_pop_c + bc * contact_high +
+            bcp * log_pop_c * contact_high,
         a ~ dnorm(0, 10),
         bp ~ dnorm(0, 1),
         bc ~ dnorm(0, 1),
@@ -3090,14 +3424,14 @@ y <- rpois(num_days, 1.5)
 
 ```{r  10.52}
 num_weeks <- 4
-y_new <- rpois(num_weeks, 0.5*7)
+y_new <- rpois(num_weeks, 0.5 * 7)
 
 ```
 
 ```{r  10.53}
 y_all <- c(y, y_new)
-exposure <- c(rep(1, 30), rep(7, 4) )
-monastery <- c(rep(0, 30), rep(1, 4) )
+exposure <- c(rep(1, 30), rep(7, 4))
+monastery <- c(rep(0, 30), rep(1, 4))
 d <- data.frame(y = y_all, days = exposure, monastery = monastery)
 
 ```
@@ -3110,7 +3444,7 @@ d$log_days <- log(d$days)
 m10.15 <- map(
     alist(
         y ~ dpois(lambda),
-        log(lambda) <- log_days + a + b*monastery,
+        log(lambda) <- log_days + a + b * monastery,
         a ~ dnorm(0, 100),
         b ~ dnorm(0, 1)
     ),
@@ -3122,7 +3456,7 @@ m10.15 <- map(
 post <- extract.samples(m10.15)
 lambda_old <- exp(post$a)
 lambda_new <- exp(post$a + post$b)
-precis(data.frame(lambda_old, lambda_new) )
+precis(data.frame(lambda_old, lambda_new))
 
 ```
 
@@ -3130,7 +3464,7 @@ precis(data.frame(lambda_old, lambda_new) )
 # simulate career choices among 500 individuals
 N <- 500             # number of individuals
 income <- 1:3        # expected income of each career
-score <- 0.5*income  # scores for each career, based on income
+score <- 0.5 * income  # scores for each career, based on income
 # next line converts scores to probabilities
 p <- softmax(score[1], score[2], score[3])
 
@@ -3146,12 +3480,12 @@ for (i in 1:N) career[i] <- sample(1:3, size = 1, prob = p)
 # fit the model, using dcategorical and softmax link
 m10.16 <- map(
     alist(
-        career ~ dcategorical(softmax(0, s2, s3) ),
-        s2 <- b*2,    # linear model for event type 2
-        s3 <- b*3,    # linear model for event type 3
+        career ~ dcategorical(softmax(0, s2, s3)),
+        s2 <- b * 2,    # linear model for event type 2
+        s3 <- b * 3,    # linear model for event type 3
         b ~ dnorm(0, 5)
     ),
-    data = list(career = career) )
+    data = list(career = career))
 
 ```
 
@@ -3163,19 +3497,19 @@ family_income <- runif(N)
 b <- (1:-1)
 career <- rep(NA, N)  # empty vector of choices for each individual
 for (i in 1:N) {
-    score <- 0.5*(1:3) + b*family_income[i]
+    score <- 0.5 *(1:3) + b * family_income[i]
     p <- softmax(score[1], score[2], score[3])
     career[i] <- sample(1:3, size = 1, prob = p)
 }
 
 m10.17 <- map(
     alist(
-        career ~ dcategorical(softmax(0, s2, s3) ),
-        s2 <- a2 + b2*family_income,
-        s3 <- a3 + b3*family_income,
+        career ~ dcategorical(softmax(0, s2, s3)),
+        s2 <- a2 + b2 * family_income,
+        s3 <- a3 + b3 * family_income,
         c(a2, a3, b2, b3) ~ dnorm(0, 5)
     ),
-    data = list(career = career, family_income = family_income) )
+    data = list(career = career, family_income = family_income))
 
 ```
 
@@ -3217,7 +3551,7 @@ logistic(coef(m_binom))
 
 ```{r  10.62}
 k <- as.numeric(coef(m_pois))
-exp(k[1])/(exp(k[1])+exp(k[2]))
+exp(k[1])/(exp(k[1])+ exp(k[2]))
 
 ```
 
@@ -3225,17 +3559,17 @@ exp(k[1])/(exp(k[1])+exp(k[2]))
 # simulate
 N <- 100
 x <- runif(N)
-y <- rgeom(N, prob = logistic( -1 + 2*x) )
+y <- rgeom(N, prob = logistic( -1 + 2 * x))
 
 # estimate
 m10.18 <- map(
     alist(
         y ~ dgeom(p),
-        logit(p) <- a + b*x,
+        logit(p) <- a + b * x,
         a ~ dnorm(0, 10),
         b ~ dnorm(0, 1)
     ),
-    data = list(y = y, x = x) )
+    data = list(y = y, x = x))
 precis(m10.18)
 
 ```
@@ -3261,25 +3595,25 @@ cum_pr_k <- cumsum(pr_k)
 
 # plot
 plot(1:7, cum_pr_k, type ="b", xlab ="response",
-ylab ="cumulative proportion", ylim = c(0, 1) )
+ylab ="cumulative proportion", ylim = c(0, 1))
 
 ```
 
 ```{r  11.4}
-logit <- function(x) log(x/(1-x)) # convenience function
-(lco <- logit(cum_pr_k) )
+logit <- function(x) log(x/(1 -x)) # convenience function
+(lco <- logit(cum_pr_k))
 
 ```
 
 ```{r  11.5}
 m11.1 <- map(
     alist(
-        response ~ dordlogit(phi, c(a1, a2, a3, a4, a5, a6) ),
+        response ~ dordlogit(phi, c(a1, a2, a3, a4, a5, a6)),
         phi <- 0,
         c(a1, a2, a3, a4, a5, a6) ~ dnorm(0, 10)
     ),
     data = d,
-    start = list(a1 =-2, a2 =-1, a3 = 0, a4 = 1, a5 = 2, a6 = 2.5) )
+    start = list(a1 =-2, a2 =-1, a3 = 0, a4 = 1, a5 = 2, a6 = 2.5))
 
 ```
 
@@ -3312,49 +3646,49 @@ precis(m11.1stan, depth = 2)
 ```
 
 ```{r  11.9}
-(pk <- dordlogit(1:7, 0, coef(m11.1) ) )
+(pk <- dordlogit(1:7, 0, coef(m11.1)) )
 
 ```
 
 ```{r  11.10}
-sum(pk*(1:7) )
+sum(pk *(1:7))
 
 ```
 
 ```{r  11.11}
-(pk <- dordlogit(1:7, 0, coef(m11.1)-0.5) )
+(pk <- dordlogit(1:7, 0, coef(m11.1)-0.5))
 
 ```
 
 ```{r  11.12}
-sum(pk*(1:7) )
+sum(pk *(1:7))
 
 ```
 
 ```{r  11.13}
 m11.2 <- map(
     alist(
-        response ~ dordlogit(phi, c(a1, a2, a3, a4, a5, a6) ),
-        phi <- bA*action + bI*intention + bC*contact,
+        response ~ dordlogit(phi, c(a1, a2, a3, a4, a5, a6)),
+        phi <- bA * action + bI * intention + bC * contact,
         c(bA, bI, bC) ~ dnorm(0, 10),
         c(a1, a2, a3, a4, a5, a6) ~ dnorm(0, 10)
     ),
     data = d,
-    start = list(a1 =-1.9, a2 =-1.2, a3 =-0.7, a4 = 0.2, a5 = 0.9, a6 = 1.8) )
+    start = list(a1 =-1.9, a2 =-1.2, a3 =-0.7, a4 = 0.2, a5 = 0.9, a6 = 1.8))
 
 ```
 
 ```{r  11.14}
 m11.3 <- map(
     alist(
-        response ~ dordlogit(phi, c(a1, a2, a3, a4, a5, a6) ),
-        phi <- bA*action + bI*intention + bC*contact +
-            bAI*action*intention + bCI*contact*intention,
+        response ~ dordlogit(phi, c(a1, a2, a3, a4, a5, a6)),
+        phi <- bA * action + bI * intention + bC * contact +
+            bAI * action * intention + bCI * contact * intention,
         c(bA, bI, bC, bAI, bCI) ~ dnorm(0, 10),
         c(a1, a2, a3, a4, a5, a6) ~ dnorm(0, 10)
     ),
     data = d,
-    start = list(a1 =-1.9, a2 =-1.2, a3 =-0.7, a4 = 0.2, a5 = 0.9, a6 = 1.8) )
+    start = list(a1 =-1.9, a2 =-1.2, a3 =-0.7, a4 = 0.2, a5 = 0.9, a6 = 1.8))
 
 ```
 
@@ -3375,7 +3709,7 @@ post <- extract.samples(m11.3)
 
 ```{r  11.18}
 plot(1, 1, type ="n", xlab ="intention", ylab ="probability",
-    xlim = c(0, 1), ylim = c(0, 1), xaxp = c(0, 1, 1), yaxp = c(0, 1, 2) )
+    xlim = c(0, 1), ylim = c(0, 1), xaxp = c(0, 1, 1), yaxp = c(0, 1, 2))
 
 ```
 
@@ -3386,13 +3720,13 @@ kI <- 0:1   # values of intention to calculate over
 for (s in 1:100) {
     p <- post[s,]
     ak <- as.numeric(p[1:6])
-    phi <- p$bA*kA + p$bI*kI + p$bC*kC +
-        p$bAI*kA*kI + p$bCI*kC*kI
+    phi <- p$bA * kA + p$bI * kI + p$bC * kC +
+        p$bAI * kA * kI + p$bCI * kC * kI
     pk <- pordlogit(1:6, a = ak, phi = phi)
     for (i in 1:6)
-        lines(kI, pk[, i], col = col.alpha(rangi2, 0.1) )
+        lines(kI, pk[, i], col = col.alpha(rangi2, 0.1))
 }
-mtext(concat( "action =", kA,", contact =", kC) )
+mtext(concat( "action =", kA,", contact =", kC))
 
 ```
 
@@ -3408,7 +3742,7 @@ N <- 365
 drink <- rbinom(N, 1, prob_drink)
 
 # simulate manuscripts completed
-y <- (1-drink)*rpois(N, rate_work)
+y <- (1 -drink)* rpois(N, rate_work)
 
 ```
 
@@ -3430,7 +3764,7 @@ m11.4 <- map(
         ap ~ dnorm(0, 1),
         al ~ dnorm(0, 10)
     ),
-    data = list(y = y) )
+    data = list(y = y))
 precis(m11.4)
 
 ```
@@ -3445,8 +3779,8 @@ exp(0.05)       # rate finish manuscripts, when not drinking
 dzip <- function(x, p, lambda, log = TRUE) {
     ll <- ifelse(
         x == 0,
-        p + (1-p)*exp(-lambda),
-        (1-p)*dpois(x, lambda, FALSE)
+        p + (1 -p)* exp(-lambda),
+        (1 -p)* dpois(x, lambda, FALSE)
     )
     if (log == TRUE) ll <- log(ll)
     return(ll)
@@ -3487,7 +3821,7 @@ precis(m11.5)
 
 ```{r  11.28}
 post <- extract.samples(m11.5)
-quantile(logistic(post$a), c(0.025, 0.5, 0.975) )
+quantile(logistic(post$a), c(0.025, 0.5, 0.975))
 
 ```
 
@@ -3502,7 +3836,7 @@ curve(dbeta2(x, mean(logistic(post$a)), mean(post$theta)), from = 0, to = 1,
 for (i in 1:100) {
     p <- logistic(post$a[i] )
     theta <- post$theta[i]
-    curve(dbeta2(x, p, theta), add = TRUE, col = col.alpha("black", 0.2) )
+    curve(dbeta2(x, p, theta), add = TRUE, col = col.alpha("black", 0.2))
 }
 
 ```
@@ -3575,12 +3909,12 @@ post <- extract.samples(m12.2)
 
 # compute median intercept for each tank
 # also transform to probability with logistic
-d$propsurv.est <- logistic(apply(post$a_tank, 2, median) )
+d$propsurv.est <- logistic(apply(post$a_tank, 2, median))
 
 # display raw proportions surviving in each tank
 plot(d$propsurv, ylim = c(0, 1), pch = 16, xaxt ="n",
     xlab ="tank", ylab ="proportion survival", col = rangi2)
-axis(1, at = c(1, 16, 32, 48), labels = c(1, 16, 32, 48) )
+axis(1, at = c(1, 16, 32, 48), labels = c(1, 16, 32, 48))
 
 # overlay posterior medians
 points(d$propsurv.est)
@@ -3592,18 +3926,18 @@ abline(h = logistic(median(post$a)), lty = 2)
 abline(v = 16.5, lwd = 0.5)
 abline(v = 32.5, lwd = 0.5)
 text(8, 0, "small tanks" )
-text(16+8, 0, "medium tanks" )
-text(32+8, 0, "large tanks" )
+text(16 + 8, 0, "medium tanks" )
+text(32 + 8, 0, "large tanks" )
 
 ```
 
 ```{r  12.6}
 # show first 100 populations in the posterior
 plot(NULL, xlim = c(-3, 4), ylim = c(0, 0.35),
-    xlab ="log-odds survive", ylab ="Density" )
+    xlab ="log -odds survive", ylab ="Density" )
 for (i in 1:100)
     curve(dnorm(x, post$a[i], post$sigma[i]), add = TRUE,
-    col = col.alpha("black", 0.2) )
+    col = col.alpha("black", 0.2))
 
 # sample 8000 imaginary tanks from the posterior distribution
 sim_tanks <- rnorm(8000, post$a, post$sigma)
@@ -3617,7 +3951,7 @@ dens(logistic(sim_tanks), xlab ="probability survive" )
 a <- 1.4
 sigma <- 1.5
 nponds <- 60
-ni <- as.integer(rep(c(5, 10, 25, 35), each = 15) )
+ni <- as.integer(rep(c(5, 10, 25, 35), each = 15))
 
 ```
 
@@ -3693,7 +4027,7 @@ points(1:60, partpool_error)
 a <- 1.4
 sigma <- 1.5
 nponds <- 60
-ni <- as.integer(rep(c(5, 10, 25, 35), each = 15) )
+ni <- as.integer(rep(c(5, 10, 25, 35), each = 15))
 a_pond <- rnorm(nponds, mean = a, sd = sigma)
 dsim <- data.frame(pond = 1:nponds, ni = ni, true_a = a_pond)
 dsim$si <- rbinom(nponds, prob = logistic(dsim$true_a), size = dsim$ni)
@@ -3718,7 +4052,7 @@ d$recipient <- NULL     # get rid of NAs
 m12.4 <- map2stan(
     alist(
         pulled_left ~ dbinom(1, p),
-        logit(p) <- a + a_actor[actor] + (bp + bpC*condition)*prosoc_left,
+        logit(p) <- a + a_actor[actor] + (bp + bpC * condition)* prosoc_left,
         a_actor[actor] ~ dnorm(0, sigma_actor),
         a ~ dnorm(0, 10),
         bp ~ dnorm(0, 10),
@@ -3744,7 +4078,7 @@ m12.5 <- map2stan(
     alist(
         pulled_left ~ dbinom(1, p),
         logit(p) <- a + a_actor[actor] + a_block[block_id] +
-                    (bp + bpc*condition)*prosoc_left,
+                    (bp + bpc * condition)* prosoc_left,
         a_actor[actor] ~ dnorm(0, sigma_actor),
         a_block[block_id] ~ dnorm(0, sigma_block),
         c(a, bp, bpc) ~ dnorm(0, 10),
@@ -3763,7 +4097,7 @@ plot(precis(m12.5, depth = 2)) # also plot
 
 ```{r  12.25}
 post <- extract.samples(m12.5)
-dens(post$sigma_block, xlab ="sigma", xlim = c(0, 4) )
+dens(post$sigma_block, xlab ="sigma", xlim = c(0, 4))
 dens(post$sigma_actor, col = rangi2, lwd = 2, add = TRUE)
 text(2, 0.85, "actor", col = rangi2)
 text(0.75, 2, "block" )
@@ -3804,7 +4138,7 @@ p.link <- function(prosoc_left, condition, actor) {
     logodds <- with(post,
         a + a_actor[, actor] + (bp + bpC * condition) * prosoc_left
     )
-    return(logistic(logodds) )
+    return(logistic(logodds))
 }
 
 ```
@@ -3812,7 +4146,7 @@ p.link <- function(prosoc_left, condition, actor) {
 ```{r  12.31}
 prosoc_left <- c(0, 1, 0, 1)
 condition <- c(0, 0, 1, 1)
-pred.raw <- sapply(1:4, function(i) p.link(prosoc_left[i], condition[i], 2) )
+pred.raw <- sapply(1:4, function(i) p.link(prosoc_left[i], condition[i], 2))
 pred.p <- apply(pred.raw, 2, mean)
 pred.p.PI <- apply(pred.raw, 2, PI)
 
@@ -3822,7 +4156,7 @@ pred.p.PI <- apply(pred.raw, 2, PI)
 d.pred <- list(
     prosoc_left = c(0, 1, 0, 1),   # right/left/right/left
     condition = c(0, 0, 1, 1),     # control/control/partner/partner
-    actor = rep(2, 4) )          # placeholder
+    actor = rep(2, 4))          # placeholder
 
 ```
 
@@ -3837,15 +4171,15 @@ a_actor_zeros <- matrix(0, 1000, 7)
 # fire up link
 # note use of replace list
 link.m12.4 <- link(m12.4, n = 1000, data = d.pred,
-    replace = list(a_actor = a_actor_zeros) )
+    replace = list(a_actor = a_actor_zeros))
 
 # summarize and plot
 pred.p.mean <- apply(link.m12.4, 2, mean)
 pred.p.PI <- apply(link.m12.4, 2, PI, prob = 0.8)
 plot(0, 0, type ="n", xlab ="prosoc_left/condition",
     ylab ="proportion pulled left", ylim = c(0, 1), xaxt ="n",
-    xlim = c(1, 4) )
-axis(1, at = 1:4, labels = c("0/0","1/0","0/1","1/1") )
+    xlim = c(1, 4))
+axis(1, at = 1:4, labels = c("0/0","1/0","0/1","1/1"))
 lines(1:4, pred.p.mean)
 shade(pred.p.PI, 1:4)
 
@@ -3861,7 +4195,7 @@ a_actor_sims <- matrix(a_actor_sims, 1000, 7)
 
 ```{r  12.36}
 link.m12.4 <- link(m12.4, n = 1000, data = d.pred,
-    replace = list(a_actor = a_actor_sims) )
+    replace = list(a_actor = a_actor_sims))
 
 ```
 
@@ -3874,7 +4208,7 @@ sim.actor <- function(i) {
     p <- logistic(
         post$a[i] +
         sim_a_actor +
-        (post$bp[i] + post$bpC[i]*C)*P
+        (post$bp[i] + post$bpC[i]* C)* P
     )
     return(p)
 }
@@ -3884,11 +4218,11 @@ sim.actor <- function(i) {
 ```{r  12.38}
 # empty plot
 plot(0, 0, type ="n", xlab ="prosoc_left/condition",
-    ylab ="proportion pulled left", ylim = c(0, 1), xaxt ="n", xlim = c(1, 4) )
-axis(1, at = 1:4, labels = c("0/0","1/0","0/1","1/1") )
+    ylab ="proportion pulled left", ylim = c(0, 1), xaxt ="n", xlim = c(1, 4))
+axis(1, at = 1:4, labels = c("0/0","1/0","0/1","1/1"))
 
 # plot 50 simulated actors
-for (i in 1:50) lines(1:4, sim.actor(i), col = col.alpha("black", 0.5) )
+for (i in 1:50) lines(1:4, sim.actor(i), col = col.alpha("black", 0.5))
 
 ```
 
@@ -3904,7 +4238,7 @@ d$society <- 1:10
 m12.6 <- map2stan(
     alist(
         total_tools ~ dpois(mu),
-        log(mu) <- a + a_society[society] + bp*logpop,
+        log(mu) <- a + a_society[society] + bp * logpop,
         a ~ dnorm(0, 10),
         bp ~ dnorm(0, 1),
         a_society[society] ~ dnorm(0, sigma_society),
@@ -3924,7 +4258,7 @@ d.pred <- list(
 a_society_sims <- rnorm(20000, 0, post$sigma_society)
 a_society_sims <- matrix(a_society_sims, 2000, 10)
 link.m12.6 <- link(m12.6, n = 2000, data = d.pred,
-    replace = list(a_society = a_society_sims) )
+    replace = list(a_society = a_society_sims))
 
 ```
 
@@ -3973,7 +4307,7 @@ Mu <- c(a, b)
 ```
 
 ```{r  13.3}
-cov_ab <- sigma_a*sigma_b*rho
+cov_ab <- sigma_a * sigma_b * rho
 Sigma <- matrix(c(sigma_a^2, cov_ab, cov_ab, sigma_b^2), ncol = 2)
 
 ```
@@ -4016,18 +4350,18 @@ plot(a_cafe, b_cafe, col = rangi2,
 
 # overlay population distribution
 library(ellipse)
-for (l in c(0.1, 0.3, 0.5, 0.8, 0.99) )
+for (l in c(0.1, 0.3, 0.5, 0.8, 0.99))
     lines(ellipse(Sigma, centre = Mu, level = l), col = col.alpha("black", 0.2))
 
 ```
 
 ```{r  13.10}
 N_visits <- 10
-afternoon <- rep(0:1, N_visits*N_cafes/2)
+afternoon <- rep(0:1, N_visits * N_cafes/2)
 cafe_id <- rep(1:N_cafes, each = N_visits)
-mu <- a_cafe[cafe_id] + b_cafe[cafe_id]*afternoon
+mu <- a_cafe[cafe_id] + b_cafe[cafe_id]* afternoon
 sigma <- 0.5  # std dev within cafes
-wait <- rnorm(N_visits*N_cafes, mu, sigma)
+wait <- rnorm(N_visits * N_cafes, mu, sigma)
 d <- data.frame(cafe = cafe_id, afternoon = afternoon, wait = wait)
 
 ```
@@ -4042,7 +4376,7 @@ dens(R[, 1, 2], xlab ="correlation" )
 m13.1 <- map2stan(
     alist(
         wait ~ dnorm(mu, sigma),
-        mu <- a_cafe[cafe] + b_cafe[cafe]*afternoon,
+        mu <- a_cafe[cafe] + b_cafe[cafe]* afternoon,
         c(a_cafe, b_cafe)[cafe] ~ dmvnorm2(c(a, b), sigma_cafe, Rho),
         a ~ dnorm(0, 10),
         b ~ dnorm(0, 10),
@@ -4064,9 +4398,9 @@ dens(post$Rho[, 1, 2] )
 ```{r  13.14}
 # compute unpooled estimates directly from data
 a1 <- sapply(1:N_cafes,
-        function(i) mean(wait[cafe_id == i & afternoon == 0]) )
+        function(i) mean(wait[cafe_id == i & afternoon == 0]))
 b1 <- sapply(1:N_cafes,
-        function(i) mean(wait[cafe_id == i & afternoon == 1]) ) - a1
+        function(i) mean(wait[cafe_id == i & afternoon == 1])) - a1
 
 # extract posterior means of partially pooled estimates
 post <- extract.samples(m13.1)
@@ -4075,25 +4409,25 @@ b2 <- apply(post$b_cafe, 2, mean)
 
 # plot both and connect with lines
 plot(a1, b1, xlab ="intercept", ylab ="slope",
-    pch = 16, col = rangi2, ylim = c(min(b1)-0.1, max(b1)+0.1),
-    xlim = c(min(a1)-0.1, max(a1)+0.1) )
+    pch = 16, col = rangi2, ylim = c(min(b1)-0.1, max(b1)+ 0.1),
+    xlim = c(min(a1)-0.1, max(a1)+ 0.1))
 points(a2, b2, pch = 1)
-for (i in 1:N_cafes) lines(c(a1[i], a2[i]), c(b1[i], b2[i]) )
+for (i in 1:N_cafes) lines(c(a1[i], a2[i]), c(b1[i], b2[i]))
 
 ```
 
 ```{r  13.15}
 # compute posterior mean bivariate Gaussian
-Mu_est <- c(mean(post$a), mean(post$b) )
+Mu_est <- c(mean(post$a), mean(post$b))
 rho_est <- mean(post$Rho[, 1, 2] )
 sa_est <- mean(post$sigma_cafe[, 1] )
 sb_est <- mean(post$sigma_cafe[, 2] )
-cov_ab <- sa_est*sb_est*rho_est
+cov_ab <- sa_est * sb_est * rho_est
 Sigma_est <- matrix(c(sa_est^2, cov_ab, cov_ab, sb_est^2), ncol = 2)
 
 # draw contours
 library(ellipse)
-for (l in c(0.1, 0.3, 0.5, 0.8, 0.99) )
+for (l in c(0.1, 0.3, 0.5, 0.8, 0.99))
     lines(ellipse(Sigma_est, centre = Mu_est, level = l),
         col = col.alpha("black", 0.2))
 
@@ -4121,7 +4455,7 @@ d$dept_id <- coerce_index(d$dept)
 m13.2 <- map2stan(
     alist(
         admit ~ dbinom(applications, p),
-        logit(p) <- a_dept[dept_id] + bm*male,
+        logit(p) <- a_dept[dept_id] + bm * male,
         a_dept[dept_id] ~ dnorm(a, sigma_dept),
         a ~ dnorm(0, 10),
         bm ~ dnorm(0, 1),
@@ -4137,7 +4471,7 @@ m13.3 <- map2stan(
     alist(
         admit ~ dbinom(applications, p),
         logit(p) <- a_dept[dept_id] +
-                    bm_dept[dept_id]*male,
+                    bm_dept[dept_id]* male,
         c(a_dept, bm_dept)[dept_id] ~ dmvnorm2(c(a, bm), sigma_dept, Rho),
         a ~ dnorm(0, 10),
         bm ~ dnorm(0, 1),
@@ -4149,7 +4483,7 @@ m13.3 <- map2stan(
 ```
 
 ```{r  13.20}
-plot(precis(m13.3, pars = c("a_dept","bm_dept"), depth = 2) )
+plot(precis(m13.3, pars = c("a_dept","bm_dept"), depth = 2))
 
 ```
 
@@ -4181,7 +4515,7 @@ m13.6 <- map2stan(
         pulled_left ~ dbinom(1, p),
 
         # linear models
-        logit(p) <- A + (BP + BPC*condition)*prosoc_left,
+        logit(p) <- A + (BP + BPC * condition)* prosoc_left,
         A <- a + a_actor[actor] + a_block[block_id],
         BP <- bp + bp_actor[actor] + bp_block[block_id],
         BPC <- bpc + bpc_actor[actor] + bpc_block[block_id],
@@ -4206,11 +4540,11 @@ m13.6 <- map2stan(
 m13.6NC <- map2stan(
     alist(
         pulled_left ~ dbinom(1, p),
-        logit(p) <- A + (BP + BPC*condition)*prosoc_left,
+        logit(p) <- A + (BP + BPC * condition)* prosoc_left,
         A <- a + a_actor[actor] + a_block[block_id],
         BP <- bp + bp_actor[actor] + bp_block[block_id],
         BPC <- bpc + bpc_actor[actor] + bpc_block[block_id],
-        # adaptive NON-CENTERED priors
+        # adaptive NON -CENTERED priors
         c(a_actor, bp_actor, bpc_actor)[actor] ~
                                 dmvnormNC(sigma_actor, Rho_actor),
         c(a_block, bp_block, bpc_block)[block_id] ~
@@ -4235,7 +4569,7 @@ boxplot(list( 'm13.6'= neff_c, 'm13.6NC'= neff_nc),
 ```
 
 ```{r  13.25}
-precis(m13.6NC, depth = 2, pars = c("sigma_actor","sigma_block") )
+precis(m13.6NC, depth = 2, pars = c("sigma_actor","sigma_block"))
 
 ```
 
@@ -4256,13 +4590,13 @@ m13.6nc1 <- map2stan(
         pulled_left ~ dbinom(1, p),
 
         # linear models
-        logit(p) <- A + (BP + BPC*condition)*prosoc_left,
-        A <- a + za_actor[actor]*sigma_actor[1] +
-                 za_block[block_id]*sigma_block[1],
-        BP <- bp + zbp_actor[actor]*sigma_actor[2] +
-                   zbp_block[block_id]*sigma_block[2],
-        BPC <- bpc + zbpc_actor[actor]*sigma_actor[3] +
-                     zbpc_block[block_id]*sigma_block[3],
+        logit(p) <- A + (BP + BPC * condition)* prosoc_left,
+        A <- a + za_actor[actor]* sigma_actor[1] +
+                 za_block[block_id]* sigma_block[1],
+        BP <- bp + zbp_actor[actor]* sigma_actor[2] +
+                   zbp_block[block_id]* sigma_block[2],
+        BPC <- bpc + zbpc_actor[actor]* sigma_actor[3] +
+                     zbpc_block[block_id]* sigma_block[3],
 
         # adaptive priors
         c(za_actor, zbp_actor, zbpc_actor)[actor] ~ dmvnorm(0, Rho_actor),
@@ -4276,7 +4610,7 @@ m13.6nc1 <- map2stan(
         Rho_block ~ dlkjcorr(4)
     ),
     data = d,
-    start = list(sigma_actor = c(1, 1, 1), sigma_block = c(1, 1, 1) ),
+    start = list(sigma_actor = c(1, 1, 1), sigma_block = c(1, 1, 1)),
     constraints = list(sigma_actor ="lower = 0", sigma_block ="lower = 0" ),
     types = list(Rho_actor ="corr_matrix", Rho_block ="corr_matrix" ),
     iter = 5000, warmup = 1000, chains = 3, cores = 3)
@@ -4297,11 +4631,11 @@ round(Dmat, 1)
 
 ```{r  13.30}
 # linear
-curve(exp(-1*x), from = 0, to = 4, lty = 2,
+curve(exp(-1 * x), from = 0, to = 4, lty = 2,
     xlab ="distance", ylab ="correlation" )
 
 # squared
-curve(exp(-1*x^2), add = TRUE)
+curve(exp(-1 * x^2), add = TRUE)
 
 ```
 
@@ -4313,7 +4647,7 @@ d$society <- 1:10 # index observations
 m13.7 <- map2stan(
     alist(
         total_tools ~ dpois(lambda),
-        log(lambda) <- a + g[society] + bp*logpop,
+        log(lambda) <- a + g[society] + bp * logpop,
         g[society] ~ GPL2(Dmat, etasq, rhosq, 0.01),
         a ~ dnorm(0, 10),
         bp ~ dnorm(0, 1),
@@ -4338,14 +4672,14 @@ precis(m13.7, depth = 2)
 post <- extract.samples(m13.7)
 
 # plot the posterior median covariance function
-curve(median(post$etasq)*exp(-median(post$rhosq)*x^2), from = 0, to = 10,
+curve(median(post$etasq)* exp(-median(post$rhosq)* x^2), from = 0, to = 10,
     xlab ="distance (thousand km)", ylab ="covariance", ylim = c(0, 1),
     yaxp = c(0, 1, 4), lwd = 2)
 
 # plot 100 functions sampled from posterior
 for (i in 1:100)
-    curve(post$etasq[i]*exp(-post$rhosq[i]*x^2), add = TRUE,
-        col = col.alpha("black", 0.2) )
+    curve(post$etasq[i]* exp(-post$rhosq[i]* x^2), add = TRUE,
+        col = col.alpha("black", 0.2))
 
 ```
 
@@ -4373,27 +4707,27 @@ Rho
 ```{r  13.36}
 # scale point size to logpop
 psize <- d$logpop / max(d$logpop)
-psize <- exp(psize*1.5)-2
+psize <- exp(psize * 1.5)-2
 
 # plot raw data and labels
 plot(d$lon2, d$lat, xlab ="longitude", ylab ="latitude",
-    col = rangi2, cex = psize, pch = 16, xlim = c(-50, 30) )
+    col = rangi2, cex = psize, pch = 16, xlim = c(-50, 30))
 labels <- as.character(d$culture)
-text(d$lon2, d$lat, labels = labels, cex = 0.7, pos = c(2, 4, 3, 3, 4, 1, 3, 2, 4, 2) )
+text(d$lon2, d$lat, labels = labels, cex = 0.7, pos = c(2, 4, 3, 3, 4, 1, 3, 2, 4, 2))
 
 # overlay lines shaded by Rho
 for(i in 1:10)
     for (j in 1:10)
         if (i < j)
             lines(c(d$lon2[i], d$lon2[j] ), c(d$lat[i], d$lat[j] ),
-                lwd = 2, col = col.alpha("black", Rho[i, j]^2) )
+                lwd = 2, col = col.alpha("black", Rho[i, j]^2))
 
 ```
 
 ```{r  13.37}
 # compute posterior median relationship, ignoring distance
 logpop.seq <- seq(from = 6, to = 14, length.out = 30)
-lambda <- sapply(logpop.seq, function(lp) exp(post$a + post$bp*lp) )
+lambda <- sapply(logpop.seq, function(lp) exp(post$a + post$bp * lp))
 lambda.median <- apply(lambda, 2, median)
 lambda.PI80 <- apply(lambda, 2, PI, prob = 0.8)
 
@@ -4401,7 +4735,7 @@ lambda.PI80 <- apply(lambda, 2, PI, prob = 0.8)
 plot(d$logpop, d$total_tools, col = rangi2, cex = psize, pch = 16,
     xlab ="log population", ylab ="total tools" )
 text(d$logpop, d$total_tools, labels = labels, cex = 0.7,
-    pos = c(4, 3, 4, 2, 2, 1, 4, 4, 4, 2) )
+    pos = c(4, 3, 4, 2, 2, 1, 4, 4, 4, 2))
 
 # display posterior predictions
 lines(logpop.seq, lambda.median, lty = 2)
@@ -4414,12 +4748,12 @@ for(i in 1:10)
         if (i < j)
             lines(c(d$logpop[i], d$logpop[j] ),
                    c(d$total_tools[i], d$total_tools[j] ),
-                   lwd = 2, col = col.alpha("black", Rho[i, j]^2) )
+                   lwd = 2, col = col.alpha("black", Rho[i, j]^2))
 
 ```
 
 ```{r  13.38}
-S <- matrix(c(sa^2, sa*sb*rho, sa*sb*rho, sb^2), nrow = 2)
+S <- matrix(c(sa^2, sa * sb * rho, sa * sb * rho, sb^2), nrow = 2)
 
 ```
 
@@ -4432,7 +4766,7 @@ sim_pancake <- function() {
 }
 
 # sim 10, 000 pancakes
-pancakes <- replicate(1e4, sim_pancake() )
+pancakes <- replicate(1e4, sim_pancake())
 up <- pancakes[1,]
 down <- pancakes[2,]
 
@@ -4453,8 +4787,8 @@ plot(d$Divorce ~ d$MedianAgeMarriage, ylim = c(4, 15),
     xlab ="Median age marriage", ylab ="Divorce rate" )
 
 # standard errors
-for (i in 1:nrow(d) ) {
-    ci <- d$Divorce[i] + c(-1, 1)*d$Divorce.SE[i]
+for (i in 1:nrow(d)) {
+    ci <- d$Divorce[i] + c(-1, 1)* d$Divorce.SE[i]
     x <- d$MedianAgeMarriage[i]
     lines(c(x, x), ci)
 }
@@ -4472,7 +4806,7 @@ dlist <- list(
 m14.1 <- map2stan(
     alist(
         div_est ~ dnorm(mu, sigma),
-        mu <- a + bA*A + bR*R,
+        mu <- a + bA * A + bR * R,
         div_obs ~ dnorm(div_est, div_sd),
         a ~ dnorm(0, 10),
         bA ~ dnorm(0, 10),
@@ -4482,7 +4816,7 @@ m14.1 <- map2stan(
     data = dlist,
     start = list(div_est = dlist$div_obs),
     WAIC = FALSE, iter = 5000, warmup = 1000, chains = 2, cores = 2,
-    control = list(adapt_delta = 0.95) )
+    control = list(adapt_delta = 0.95))
 
 ```
 
@@ -4502,7 +4836,7 @@ dlist <- list(
 m14.2 <- map2stan(
     alist(
         div_est ~ dnorm(mu, sigma),
-        mu <- a + bA*A + bR*mar_est[i],
+        mu <- a + bA * A + bR * mar_est[i],
         div_obs ~ dnorm(div_est, div_sd),
         mar_obs ~ dnorm(mar_est, mar_sd),
         a ~ dnorm(0, 10),
@@ -4513,7 +4847,7 @@ m14.2 <- map2stan(
     data = dlist,
     start = list(div_est = dlist$div_obs, mar_est = dlist$mar_obs),
     WAIC = FALSE, iter = 5000, warmup = 1000, chains = 3, cores = 3,
-    control = list(adapt_delta = 0.95) )
+    control = list(adapt_delta = 0.95))
 
 ```
 
@@ -4537,7 +4871,7 @@ data_list <- list(
 m14.3 <- map2stan(
     alist(
         kcal ~ dnorm(mu, sigma),
-        mu <- a + bN*neocortex + bM*logmass,
+        mu <- a + bN * neocortex + bM * logmass,
         neocortex ~ dnorm(nu, sigma_N),
         a ~ dnorm(0, 100),
         c(bN, bM) ~ dnorm(0, 10),
@@ -4566,7 +4900,7 @@ data_list_cc <- list(
 m14.3cc <- map2stan(
     alist(
         kcal ~ dnorm(mu, sigma),
-        mu <- a + bN*neocortex + bM*logmass,
+        mu <- a + bN * neocortex + bM * logmass,
         a ~ dnorm(0, 100),
         c(bN, bM) ~ dnorm(0, 10),
         sigma ~ dcauchy(0, 1)
@@ -4580,9 +4914,9 @@ precis(m14.3cc)
 m14.4 <- map2stan(
     alist(
         kcal ~ dnorm(mu, sigma),
-        mu <- a + bN*neocortex + bM*logmass,
+        mu <- a + bN * neocortex + bM * logmass,
         neocortex ~ dnorm(nu, sigma_N),
-        nu <- a_N + gM*logmass,
+        nu <- a_N + gM * logmass,
         a ~ dnorm(0, 100),
         c(bN, bM, gM) ~ dnorm(0, 10),
         a_N ~ dnorm(0.5, 1),
@@ -4597,7 +4931,7 @@ precis(m14.4, depth = 2)
 ```{r  14.11}
 nc_missing <- ifelse(is.na(d$neocortex.prop), 1, 0)
 nc_missing <- sapply(1:length(nc_missing),
-    function(n) nc_missing[n]*sum(nc_missing[1:n]) )
+    function(n) nc_missing[n]* sum(nc_missing[1:n]))
 nc_missing
 
 ```
@@ -4643,7 +4977,7 @@ model{
     // imputation
     nc_merged ~ normal(mu_nc, sigma_nc);
     // regression
-    mu <- alpha + bN*nc_merged + bM*logmass;
+    mu <- alpha + bN * nc_merged + bM * logmass;
     kcal ~ normal(mu, sigma);
 }'
 
@@ -4661,7 +4995,7 @@ data_list <- list(
 start <- list(
     alpha = mean(d$kcal.per.g), sigma = sd(d$kcal.per.g),
     bN = 0, bM = 0, mu_nc = 0.68, sigma_nc = 0.06,
-    nc_impute = rep(0.5, max(nc_missing) )
+    nc_impute = rep(0.5, max(nc_missing))
 )
 library(rstan)
 m14.3stan <- stan(model_code = model_code, data = data_list, init = list(start),
