@@ -767,7 +767,7 @@ Then using the samples to calculate the 90\% HPDI for _p_.
 length_out <- 10000
 samples <- sample(p_grid, length_out, replace = TRUE, prob = posterior)
 HPDI(samples, 0.9)
-
+HPDI(rbinom(length_out, 15, 0.7), 0.9)
 ```
 Construct a posterior predictive check for this model and data.
 This means simulate the distribution of samples, averaging over the posterior uncertainty in _p_.
@@ -778,6 +778,7 @@ w_t <- table(w)
 
 Pr_8_in_15 <- as.numeric(w_t)[names(w_t) == "8"] / sum(as.numeric(w_t))
 Pr_8_in_15
+dbinom(8, 15, 0.7)
 ```
 Using the posterior distribution constructed from the new (8/15) data, 
 now calculate the probability of observing 6 water in 9 tosses.
@@ -787,7 +788,12 @@ now calculate the probability of observing 6 water in 9 tosses.
 Pr_w <- sum(as.numeric(w_t) * as.numeric(names(w_t))) / (15 * length_out)
 w_6_of_9 <- dbinom(6, 9, Pr_w)
 w_6_of_9
+dbinom(6, 9, 0.7)
 ```
+### Hard.
+__Introduction.__ The practice problems here all use the data below.
+These data indicate the gender (male=1, female=0) of officially reported first
+and second born children in 100 two-child families.
 
 ```{r  3.28}
 birth1 <- c(1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
@@ -800,13 +806,31 @@ birth2 <- c(0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1,
 0, 0, 0, 1, 1, 1, 0, 0, 0, 0)
 
 ```
-
+So for example, the first family in the data reported a boy (1) and then a girl
+(0).
+The second family reported a girl (0) and then a boy (1).
+The thrid family reported two girls.
+You can load these two vectors int R's memeory by typing:
 ```{r  3.29}
 library(rethinking)
 data(homeworkch3)
 
 ```
+Use these vectors as data.
+So for example to compute the total number of boys born across all of these 
+birth, you could use:
 ```{r  3.30}
 sum(birth1) + sum(birth2)
+
+```
+####3H1.
+Using grid approximation, compute the posterior distribution for the probability
+of a birth being a boy.
+Assume a uniform prior probability.
+Which parameter value maximizes the posterior probability?
+```{r practice3H1}
+all_births <- c(birth1, birth2)
+p_grid <- seq(from = 0, to = 1, length.out = length_out)
+prior <- rep(1, length_out)
 
 ```
