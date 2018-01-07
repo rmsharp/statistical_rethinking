@@ -830,7 +830,25 @@ Assume a uniform prior probability.
 Which parameter value maximizes the posterior probability?
 ```{r practice3H1}
 all_births <- c(birth1, birth2)
+# define prior
 p_grid <- seq(from = 0, to = 1, length.out = length_out)
 prior <- rep(1, length_out)
 
+# compute likelihood at each value in grid
+likelihood <- dbinom(sum(all_births), size = length(all_births), prob = p_grid)
+
+# compute product of likelihood and prior
+unstd.posterior <- likelihood * prior
+
+# standardize the posterior, so it sums to 1
+posterior <- unstd.posterior / sum(unstd.posterior)
+
+plot(p_grid,
+     posterior,
+     type = "b",
+     xlab = "probability of boy",
+     ylab = "posterior probability")
+mtext("1000 points")
+
+                     
 ```
